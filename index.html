@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>servicenow-role-planner</title>
+    <script>
+      // GitHub Pages SPA redirect: restore path encoded by 404.html
+      (function () {
+        var p = window.location.search.match(/[?&]p=([^&]*)/);
+        if (p) {
+          var path = '/role-planner/' + p[1].replace(/~and~/g, '&');
+          var q = window.location.search.match(/[?&]q=([^&]*)/);
+          var query = q ? '?' + q[1].replace(/~and~/g, '&') : '';
+          window.history.replaceState(null, null, path + query + window.location.hash);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
