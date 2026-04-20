@@ -1,6 +1,6 @@
 import { utils, writeFile, type WorkBook } from 'xlsx';
 import type { AppState } from '../types';
-import { getRoles, getEffectiveRoles, expandRoles, aggregateUI, aggregateCaps, aggregateCrud } from './personaAggregation';
+import { getRoles, getEffectiveRoles, aggregateUI, aggregateCaps, aggregateCrud } from './personaAggregation';
 
 type AOA = (string | number | boolean | null)[][];
 

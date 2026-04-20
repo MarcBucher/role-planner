@@ -1,5 +1,7 @@
 import ExcelJS from 'exceljs';
 import type { AppState, Persona } from '../types';
+
+type ExportState = Omit<AppState, 'version' | 'exportedAt'>;
 import { getRoles, getEffectiveRoles, getInheritanceTrace, aggregateUI, aggregateCaps, aggregateCrud, type CrudAgg } from './personaAggregation';
 
 // ─── ARGB color constants ─────────────────────────────────────────────────────
@@ -73,7 +75,7 @@ interface PersonaData {
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export async function exportUebersichtToExcel(
-  state: AppState,
+  state: ExportState,
   selectedIds: string[],
   filename: string,
 ): Promise<void> {
