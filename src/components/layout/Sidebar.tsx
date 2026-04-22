@@ -42,21 +42,25 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className={`relative flex flex-col bg-slate-900 text-slate-100 transition-all duration-200 ${collapsed ? 'w-14' : 'w-56'} shrink-0 min-h-screen`}>
+    <aside className={`relative flex flex-col text-white transition-all duration-200 ${collapsed ? 'w-14' : 'w-56'} shrink-0 min-h-screen`} style={{ backgroundColor: '#24303e' }}>
       {/* Logo area */}
-      <div className={`flex items-center gap-2 px-3 py-4 border-b border-slate-700 ${collapsed ? 'justify-center' : ''}`}>
-        <div className="w-7 h-7 bg-blue-500 rounded-md flex items-center justify-center shrink-0">
-          <span className="text-white font-bold text-xs">SN</span>
+      <div className={`flex items-center gap-2 px-3 py-4 border-b border-white/10 ${collapsed ? 'justify-center' : ''}`}>
+        <div className="w-7 h-7 bg-[#38b5aa] flex items-center justify-center shrink-0">
+          <span className="text-[#24303e] font-bold text-xs font-display">SN</span>
         </div>
-        {!collapsed && <span className="font-semibold text-sm leading-tight">Role Planner</span>}
+        {!collapsed && (
+          <span className="font-semibold text-sm leading-tight font-display tracking-wide">
+            Role Planner
+          </span>
+        )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3">
+      <nav className="flex-1 overflow-y-auto py-3 scrollbar-thin">
         {navItems.map((group) => (
           <div key={group.group} className="mb-4">
             {!collapsed && (
-              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#38b5aa]/60">
                 {group.group}
               </p>
             )}
@@ -66,10 +70,10 @@ export function Sidebar() {
                 to={item.to}
                 end={'end' in item ? item.end : false}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3 py-2 mx-1 rounded-md text-sm transition-colors ${
+                  `flex items-center gap-2.5 px-3 py-2 mx-1 text-sm transition-colors ${
                     isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-[#38b5aa] text-[#24303e] font-semibold'
+                      : 'text-white/70 hover:bg-[#2d3c4d] hover:text-white'
                   } ${collapsed ? 'justify-center' : ''}`
                 }
                 title={collapsed ? item.label : undefined}
@@ -85,7 +89,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed((v) => !v)}
-        className="flex items-center justify-center h-9 border-t border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+        className="flex items-center justify-center h-9 border-t border-white/10 text-white/40 hover:text-white hover:bg-[#2d3c4d] transition-colors"
         title={collapsed ? 'Ausklappen' : 'Einklappen'}
       >
         {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}

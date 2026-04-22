@@ -19,8 +19,8 @@ function getInitials(name: string): string {
 function ScopeBadge({ scope }: { scope?: string }) {
   const isExtern = scope === 'extern';
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold ${
-      isExtern ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
+    <span className={`inline-flex items-center px-1.5 py-0.5 text-[11px] font-semibold ${
+      isExtern ? 'bg-orange-100 text-orange-700' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
     }`}>
       {isExtern ? 'Extern' : 'Intern'}
     </span>
@@ -40,12 +40,12 @@ function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-start justify-between bg-white rounded-xl border border-slate-200 px-4 py-4">
+    <div ref={setNodeRef} style={style} className="flex items-start justify-between bg-white border border-[#e5e7eb] px-4 py-4">
       {isDndActive && (
         <button
           {...listeners}
           {...attributes}
-          className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mt-1 mr-2 shrink-0"
+          className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing mt-1 mr-2 shrink-0"
           tabIndex={-1}
         >
           <GripVertical size={14} />
@@ -53,21 +53,21 @@ function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick
       )}
       <div className="flex items-start gap-3 min-w-0 flex-1">
         <div
-          className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white select-none"
+          className="w-10 h-10 shrink-0 flex items-center justify-center text-sm font-bold text-white select-none"
           style={{ backgroundColor: p.color }}
         >
           {getInitials(p.name)}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-slate-800">{p.name}</p>
+            <p className="font-semibold text-[#24303e]">{p.name}</p>
             <ScopeBadge scope={p.scope} />
           </div>
-          {p.exampleUser && <p className="text-xs text-slate-400 italic">{p.exampleUser}</p>}
-          {p.description && <p className="text-xs text-slate-500 mt-0.5 mb-2">{p.description}</p>}
+          {p.exampleUser && <p className="text-xs text-[#c8c8c8] italic">{p.exampleUser}</p>}
+          {p.description && <p className="text-xs text-[#767676] mt-0.5 mb-2">{p.description}</p>}
           <div className="flex flex-wrap gap-1">
             {assignedGroups.length === 0 && (
-              <span className="text-xs text-slate-400">Keiner Gruppe zugewiesen</span>
+              <span className="text-xs text-[#c8c8c8]">Keiner Gruppe zugewiesen</span>
             )}
             {assignedGroups.map((g) => (
               <Badge key={g.id} label={g.name} />
@@ -76,10 +76,10 @@ function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick
         </div>
       </div>
       <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(p)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+        <button onClick={() => onEdit(p)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(p.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+        <button onClick={() => onDeleteClick(p.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -123,16 +123,16 @@ export function PersonaList() {
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <p className="text-sm text-slate-500">{personas.length} Persona{personas.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-[#767676]">{personas.length} Persona{personas.length !== 1 ? 's' : ''}</p>
           <div className="flex gap-1">
             {(['all', 'intern', 'extern'] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+                className={`px-2.5 py-1 text-xs transition-colors ${
                   filter === f
-                    ? f === 'extern' ? 'bg-orange-100 text-orange-700 font-semibold' : f === 'intern' ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-slate-200 text-slate-700 font-semibold'
-                    : 'text-slate-500 hover:bg-slate-100'
+                    ? f === 'extern' ? 'bg-orange-100 text-orange-700 font-semibold' : f === 'intern' ? 'bg-[#38b5aa]/10 text-[#38b5aa] font-semibold' : 'bg-[#e5e7eb] text-[#24303e] font-semibold'
+                    : 'text-[#767676] hover:bg-[#f0f0f0]'
                 }`}
               >
                 {f === 'all' ? `Alle (${personas.length})` : f === 'intern' ? `Intern (${internCount})` : `Extern (${externCount})`}
@@ -142,7 +142,7 @@ export function PersonaList() {
         </div>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> Persona hinzufügen
         </button>

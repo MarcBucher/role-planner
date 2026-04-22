@@ -19,17 +19,17 @@ export function RoleCapabilityMatrix() {
 
   return (
     <div className="overflow-x-auto scrollbar-thin">
-      <div className="inline-block rounded-xl overflow-hidden shadow-sm border border-slate-200">
+      <div className="inline-block overflow-hidden shadow-sm border border-[#e5e7eb]">
       <table className="border-collapse text-sm bg-white">
         <thead>
-          <tr className="bg-slate-50">
-            <th className="sticky left-0 z-10 bg-slate-50 px-4 py-2.5 text-left text-xs font-semibold text-slate-600 border-b border-r border-slate-200 min-w-[160px]">
+          <tr className="bg-[#f0f0f0]">
+            <th className="sticky left-0 z-10 bg-[#f0f0f0] px-4 py-2.5 text-left text-xs font-semibold text-[#56606c] border-b border-r border-slate-200 min-w-[160px]">
               Rolle / Fähigkeit
             </th>
             {capabilities.map((c) => (
-              <th key={c.id} className="border-b border-slate-200" style={{ width: '2.5rem' }}>
+              <th key={c.id} className="border-b border-[#e5e7eb]" style={{ width: '2.5rem' }}>
                 <span
-                  className="block text-xs font-medium text-slate-600 px-1 py-2"
+                  className="block text-xs font-medium text-[#56606c] px-1 py-2"
                   style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}
                   title={`${c.name}${c.category ? ` (${c.category})` : ''}`}
                 >
@@ -41,13 +41,13 @@ export function RoleCapabilityMatrix() {
         </thead>
         <tbody>
           {roles.map((r, rowIdx) => (
-            <tr key={r.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+            <tr key={r.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#f0f0f0]/50'}>
               <td
                 className="sticky left-0 z-10 px-4 py-2.5 border-r border-slate-200"
                 style={{ backgroundColor: rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
               >
-                <div className="font-mono text-xs font-semibold text-slate-700">{r.name}</div>
-                {r.label !== r.name && <div className="text-xs text-slate-400">{r.label}</div>}
+                <div className="font-mono text-xs font-semibold text-[#24303e]">{r.name}</div>
+                {r.label !== r.name && <div className="text-xs text-[#767676]">{r.label}</div>}
               </td>
               {capabilities.map((c) => {
                 const checked = r.capabilityIds.includes(c.id);
@@ -56,7 +56,7 @@ export function RoleCapabilityMatrix() {
                     <button
                       onClick={() => toggleRoleCapability(r.id, c.id)}
                       className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
-                        checked ? 'bg-purple-50 hover:bg-purple-100 text-purple-600' : 'hover:bg-slate-50 text-transparent'
+                        checked ? 'bg-[#38b5aa]/10 hover:bg-[#38b5aa]/20 text-[#38b5aa]' : 'hover:bg-[#f0f0f0] text-transparent'
                       }`}
                       title={checked ? `${r.name} hat ${c.name}` : `${c.name} zu ${r.name} hinzufügen`}
                     >

@@ -25,21 +25,21 @@ function SortableUIItem({ entry: u, onEdit, onDeleteClick }: SortableUIItemProps
       <button
         {...listeners}
         {...attributes}
-        className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mr-2 shrink-0"
+        className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing mr-2 shrink-0"
         tabIndex={-1}
       >
         <GripVertical size={14} />
       </button>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">{u.key}</span>
-          <span className="text-sm font-medium text-slate-800">{u.label}</span>
+          <span className="font-mono text-xs font-semibold text-[#24303e] bg-[#f0f0f0] px-1.5 py-0.5 rounded">{u.key}</span>
+          <span className="text-sm font-medium text-[#24303e]">{u.label}</span>
         </div>
-        {u.description && <p className="text-xs text-slate-500 mt-0.5">{u.description}</p>}
+        {u.description && <p className="text-xs text-[#767676] mt-0.5">{u.description}</p>}
       </div>
       <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(u)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><Pencil size={14} /></button>
-        <button onClick={() => onDeleteClick(u.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
+        <button onClick={() => onEdit(u)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
+        <button onClick={() => onDeleteClick(u.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
       </div>
     </div>
   );
@@ -79,10 +79,10 @@ export function UITypeList() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{uiTypes.length} UI-Typ{uiTypes.length !== 1 ? 'en' : ''}</p>
+        <p className="text-sm text-[#767676]">{uiTypes.length} UI-Typ{uiTypes.length !== 1 ? 'en' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> UI-Typ hinzufügen
         </button>
@@ -98,7 +98,7 @@ export function UITypeList() {
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={uiTypes.map((u) => u.id)} strategy={verticalListSortingStrategy}>
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+            <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
               {uiTypes.map((u) => (
                 <SortableUIItem key={u.id} entry={u} onEdit={handleEdit} onDeleteClick={handleDeleteClick} />
               ))}

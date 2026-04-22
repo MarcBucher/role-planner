@@ -25,7 +25,7 @@ export function Badge({ label, color, className = '' }: BadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${color ? '' : 'bg-slate-100 text-slate-700'} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${color ? '' : 'bg-[#f0f0f0] text-[#24303e]'} ${className}`}
       style={style}
     >
       {label}

@@ -40,8 +40,8 @@ type GridRow =
 const CRUD_KEYS        = ['create', 'read', 'update', 'delete'] as const;
 const CRUD_FILTER_KEYS = ['createFilter', 'readFilter', 'updateFilter', 'deleteFilter'] as const;
 const CRUD_LABELS      = ['C', 'R', 'U', 'D'];
-const CRUD_COLORS      = ['text-green-600', 'text-blue-600', 'text-amber-600', 'text-red-600'];
-const CRUD_BG          = ['bg-green-50',    'bg-blue-50',    'bg-amber-50',    'bg-red-50'];
+const CRUD_COLORS      = ['text-green-600', 'text-sky-600', 'text-amber-600', 'text-red-600'];
+const CRUD_BG          = ['bg-green-50',    'bg-sky-50',    'bg-amber-50',    'bg-red-50'];
 
 // ─── Chip (sortable) ─────────────────────────────────────────────────────────
 
@@ -51,21 +51,21 @@ function SortableChip({ persona, onRemove }: { persona: Persona; onRemove: () =>
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
-      className="flex items-center gap-1.5 px-2 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-sm cursor-grab active:cursor-grabbing select-none"
+      className="flex items-center gap-1.5 px-2 py-1 bg-white border border-[#e5e7eb] shadow-sm text-sm cursor-grab active:cursor-grabbing select-none"
       {...attributes}
       {...listeners}
     >
       <span
-        className="w-5 h-5 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+        className="w-5 h-5 flex items-center justify-center text-white font-bold shrink-0"
         style={{ backgroundColor: persona.color, fontSize: '9px' }}
       >
         {getInitials(persona.name)}
       </span>
-      <span className="text-slate-700 max-w-[120px] truncate">{persona.name}</span>
+      <span className="text-[#24303e] max-w-[120px] truncate">{persona.name}</span>
       <button
         onClick={(e) => { e.stopPropagation(); onRemove(); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="ml-0.5 p-0.5 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-colors"
+        className="ml-0.5 p-0.5 text-[#767676] hover:text-red-500 hover:bg-red-50 transition-colors"
       >
         <X size={12} />
       </button>
@@ -94,22 +94,22 @@ function AddPersonaDropdown({ available, onAdd }: { available: Persona[]; onAdd:
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 px-2.5 py-1 text-sm text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 transition-colors"
+        className="flex items-center gap-1 px-2.5 py-1 text-sm text-[#38b5aa] border border-[#38b5aa]/20 hover:bg-[#38b5aa]/10 transition-colors"
       >
         <Plus size={13} />
         <span>Hinzufügen</span>
         <ChevronDown size={12} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[180px]">
+        <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-[#e5e7eb] shadow-lg py-1 min-w-[180px]">
           {available.map((p) => (
             <button
               key={p.id}
               onClick={() => { onAdd(p.id); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 text-left"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#24303e] hover:bg-[#f0f0f0] text-left"
             >
               <span
-                className="w-5 h-5 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                className="w-5 h-5 flex items-center justify-center text-white font-bold shrink-0"
                 style={{ backgroundColor: p.color, fontSize: '9px' }}
               >
                 {getInitials(p.name)}
@@ -236,14 +236,14 @@ export function PersonaUebersicht() {
   return (
     <div className="flex flex-col gap-5">
       {/* ── Persona selector ── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
+      <div className="bg-white border border-[#e5e7eb] p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Angezeigte Personas</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#767676]">Angezeigte Personas</p>
           <button
             onClick={async () => {
               await exportUebersichtToExcel(useStore.getState(), selectedIds, 'persona-uebersicht.xlsx');
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#56606c] border border-[#e5e7eb] hover:bg-[#f0f0f0] hover:border-slate-300 transition-colors"
           >
             <Download size={13} />
             Excel exportieren
@@ -260,30 +260,30 @@ export function PersonaUebersicht() {
           </SortableContext>
         </DndContext>
         {selectedPersonas.length === 0 && (
-          <p className="text-sm text-slate-400 mt-1">Keine Personas ausgewählt — wähle Personas über «Hinzufügen».</p>
+          <p className="text-sm text-[#767676] mt-1">Keine Personas ausgewählt — wähle Personas über «Hinzufügen».</p>
         )}
       </div>
 
       {/* ── Grid ── */}
       {N > 0 && (
         <div className="overflow-x-auto scrollbar-thin">
-          <div className="inline-block rounded-xl overflow-hidden shadow-sm border border-slate-200 min-w-full">
+          <div className="inline-block overflow-hidden shadow-sm border border-[#e5e7eb] min-w-full">
             <table className="border-collapse text-sm bg-white">
               <thead>
                 {/* Only persona names in the fixed header — no global CRUD row */}
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="sticky left-0 z-20 bg-slate-50 px-4 py-3 w-44 min-w-[11rem]" />
+                <tr className="bg-[#f0f0f0] border-b border-[#e5e7eb]">
+                  <th className="sticky left-0 z-20 bg-[#f0f0f0] px-4 py-3 w-44 min-w-[11rem]" />
                   {selectedPersonas.map((p) => (
                     <th key={p.id} colSpan={4} className="px-2 py-3 text-center border-l border-slate-200">
                       <div className="flex flex-col items-center gap-1">
                         <span
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
+                          className="w-8 h-8 flex items-center justify-center text-white font-bold"
                           style={{ backgroundColor: p.color, fontSize: '11px' }}
                         >
                           {getInitials(p.name)}
                         </span>
-                        <span className="font-semibold text-slate-800 text-xs leading-tight">{p.name}</span>
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${p.scope === 'extern' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <span className="font-semibold text-[#24303e] text-xs leading-tight">{p.name}</span>
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${p.scope === 'extern' ? 'bg-orange-100 text-orange-700' : 'bg-[#38b5aa]/10 text-[#38b5aa]'}`}>
                           {p.scope === 'extern' ? 'Extern' : 'Intern'}
                         </span>
                       </div>
@@ -294,13 +294,13 @@ export function PersonaUebersicht() {
               <tbody>
                 {rows.map((row, rowIdx) => {
                   const isHovered = 'rowKey' in row && hoveredRowKey === row.rowKey;
-                  const baseRowBg = rowIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+                  const baseRowBg = rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#f0f0f0]/50';
 
                   // ── Section header (module name or UI-Zugriff / Fähigkeiten) ──
                   if (row.type === 'section') {
                     return (
-                      <tr key={`section-${rowIdx}`} className="bg-slate-100 border-t border-b border-slate-200">
-                        <td colSpan={totalCols} className="sticky left-0 px-4 py-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                      <tr key={`section-${rowIdx}`} className="bg-[#f0f0f0] border-t border-b border-[#e5e7eb]">
+                        <td colSpan={totalCols} className="sticky left-0 px-4 py-2 text-xs font-semibold text-[#56606c] uppercase tracking-wide">
                           {row.label}
                         </td>
                       </tr>
@@ -310,8 +310,8 @@ export function PersonaUebersicht() {
                   // ── CRUD sub-header (appears after each module section) ──
                   if (row.type === 'crud-subhdr') {
                     return (
-                      <tr key={`crud-subhdr-${rowIdx}`} className="bg-slate-50 border-b border-slate-200">
-                        <td className="sticky left-0 z-10 bg-slate-50 px-4 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide border-r border-slate-200">
+                      <tr key={`crud-subhdr-${rowIdx}`} className="bg-[#f0f0f0] border-b border-[#e5e7eb]">
+                        <td className="sticky left-0 z-10 bg-[#f0f0f0] px-4 py-1 text-[10px] font-semibold text-[#767676] uppercase tracking-wide border-r border-slate-200">
                           Tabelle
                         </td>
                         {selectedPersonas.map((p) => (
@@ -331,11 +331,11 @@ export function PersonaUebersicht() {
                   // ── Meta row ──
                   if (row.type === 'meta') {
                     const labelClass = row.indent
-                      ? 'sticky left-0 z-10 px-4 py-1.5 pl-8 text-[11px] text-slate-400 border-r border-slate-100 bg-inherit'
-                      : 'sticky left-0 z-10 px-4 py-2.5 text-xs text-slate-500 font-medium border-r border-slate-100 bg-inherit';
+                      ? 'sticky left-0 z-10 px-4 py-1.5 pl-8 text-[11px] text-[#767676] border-r border-slate-100 bg-inherit'
+                      : 'sticky left-0 z-10 px-4 py-2.5 text-xs text-[#767676] font-medium border-r border-slate-100 bg-inherit';
                     const valueClass = row.indent
-                      ? 'px-3 py-1.5 text-[11px] text-slate-400 italic border-l border-slate-100 transition-colors'
-                      : 'px-3 py-2.5 text-xs text-slate-600 border-l border-slate-100 transition-colors';
+                      ? 'px-3 py-1.5 text-[11px] text-[#767676] italic border-l border-slate-100 transition-colors'
+                      : 'px-3 py-2.5 text-xs text-[#56606c] border-l border-slate-100 transition-colors';
                     return (
                       <tr key={row.rowKey} className={baseRowBg}>
                         <td className={labelClass}>
@@ -360,7 +360,7 @@ export function PersonaUebersicht() {
                   if (row.type === 'right') {
                     return (
                       <tr key={row.rowKey} className={baseRowBg}>
-                        <td className="sticky left-0 z-10 px-4 py-2.5 text-xs text-slate-500 pl-6 border-r border-slate-100 bg-inherit">
+                        <td className="sticky left-0 z-10 px-4 py-2.5 text-xs text-[#767676] pl-6 border-r border-slate-100 bg-inherit">
                           {row.label}
                         </td>
                         {personaData.map((pd) => {
@@ -373,9 +373,9 @@ export function PersonaUebersicht() {
                               onMouseEnter={() => setHoveredRowKey(row.rowKey)}
                               onMouseLeave={() => setHoveredRowKey(null)}
                             >
-                              {val === 'yes' && <span className="text-blue-600 font-bold">✓</span>}
+                              {val === 'yes' && <span className="text-[#38b5aa] font-bold">✓</span>}
                               {val === 'yes-filtered' && <span className="text-orange-500 font-bold">✓*</span>}
-                              {val === 'no' && <span className="text-slate-200">–</span>}
+                              {val === 'no' && <span className="text-[#c8c8c8]">–</span>}
                             </td>
                           );
                         })}
@@ -386,7 +386,7 @@ export function PersonaUebersicht() {
                   // ── Table row: 4 CRUD cells per persona ──
                   return (
                     <tr key={row.rowKey} className={baseRowBg}>
-                      <td className="sticky left-0 z-10 px-4 py-2 text-xs text-slate-600 pl-6 border-r border-slate-100 bg-inherit font-medium">
+                      <td className="sticky left-0 z-10 px-4 py-2 text-xs text-[#56606c] pl-6 border-r border-slate-100 bg-inherit font-medium">
                         {row.label}
                       </td>
                       {personaData.map((pd) => {
@@ -412,15 +412,15 @@ export function PersonaUebersicht() {
                                     {filter ? '✓*' : '✓'}
                                   </span>
                                   {filter && (
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1.5 bg-slate-800 text-white text-[11px] rounded-md whitespace-nowrap invisible group-hover:visible z-50 shadow-lg pointer-events-none">
-                                      <span className="text-slate-400 mr-1">Filter:</span>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1.5 bg-[#24303e] text-white text-[11px] whitespace-nowrap invisible group-hover:visible z-50 shadow-lg pointer-events-none">
+                                      <span className="text-[#767676] mr-1">Filter:</span>
                                       {filter}
                                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
                                     </div>
                                   )}
                                 </>
                               )}
-                              {!hasRight && <span className="text-slate-200 text-xs">–</span>}
+                              {!hasRight && <span className="text-[#c8c8c8] text-xs">–</span>}
                             </td>
                           );
                         });

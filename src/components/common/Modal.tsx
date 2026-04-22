@@ -23,11 +23,11 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className={`relative bg-white rounded-xl shadow-xl w-full ${widths[size]} z-10`}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-800">{title}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
+      <div className="absolute inset-0 bg-[#24303e]/50" onClick={onClose} />
+      <div className={`relative bg-white shadow-xl w-full ${widths[size]} z-10`}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e7eb]" style={{ backgroundColor: '#24303e' }}>
+          <h2 className="font-semibold font-display" style={{ color: '#ffffff' }}>{title}</h2>
+          <button onClick={onClose} className="transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <X size={18} />
           </button>
         </div>

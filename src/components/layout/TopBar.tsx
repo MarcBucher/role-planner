@@ -12,11 +12,11 @@ export function TopBar({ title }: { title: string }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200 shrink-0">
-      <h1 className="text-base font-semibold text-slate-800">{title}</h1>
+    <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-[#e5e7eb] shrink-0">
+      <h1 className="text-base font-semibold text-[#24303e] font-display">{title}</h1>
       <button
         onClick={handleExport}
-        className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
       >
         <Download size={14} />
         Excel exportieren

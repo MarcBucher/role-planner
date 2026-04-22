@@ -61,12 +61,12 @@ export function PersonaForm({ open, onClose, persona }: PersonaFormProps) {
     <Modal open={open} onClose={onClose} title={persona ? 'Persona bearbeiten' : 'Neue Persona'} size="md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Name *</label>
+          <label className="block text-xs font-medium text-[#24303e] mb-1">Name *</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa]"
             placeholder="z.B. IT Admin, Endnutzer, Manager"
             autoFocus
             required
@@ -74,18 +74,18 @@ export function PersonaForm({ open, onClose, persona }: PersonaFormProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Beispiel-User <span className="text-slate-400 font-normal">– repräsentative Person</span></label>
+          <label className="block text-xs font-medium text-[#24303e] mb-1">Beispiel-User <span className="text-[#767676] font-normal">– repräsentative Person</span></label>
           <input
             type="text"
             value={exampleUser}
             onChange={(e) => setExampleUser(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa]"
             placeholder="z.B. Max Muster"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-2">Typ</label>
+          <label className="block text-xs font-medium text-[#24303e] mb-2">Typ</label>
           <div className="flex gap-3">
             {(['intern', 'extern'] as PersonaScope[]).map((s) => (
               <label key={s} className="flex items-center gap-2 cursor-pointer">
@@ -95,10 +95,10 @@ export function PersonaForm({ open, onClose, persona }: PersonaFormProps) {
                   value={s}
                   checked={scope === s}
                   onChange={() => setScope(s)}
-                  className="accent-blue-600"
+                  className="accent-[#38b5aa]"
                 />
                 <span className={`text-sm font-medium px-2 py-0.5 rounded ${
-                  s === 'intern' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
+                  s === 'intern' ? 'bg-[#38b5aa]/10 text-[#38b5aa]' : 'bg-orange-50 text-orange-700'
                 }`}>
                   {s === 'intern' ? 'Intern' : 'Extern'}
                 </span>
@@ -108,25 +108,25 @@ export function PersonaForm({ open, onClose, persona }: PersonaFormProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Beschreibung</label>
+          <label className="block text-xs font-medium text-[#24303e] mb-1">Beschreibung</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa] resize-none"
             placeholder="Kurze Beschreibung dieser Persona..."
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-2">Farbe</label>
+          <label className="block text-xs font-medium text-[#24303e] mb-2">Farbe</label>
           <div className="flex gap-2 flex-wrap">
             {PERSONA_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
-                className={`w-7 h-7 rounded-full transition-transform ${color === c ? 'ring-2 ring-offset-1 ring-blue-500 scale-110' : 'hover:scale-105'}`}
+                className={`w-7 h-7 transition-transform ${color === c ? 'ring-2 ring-offset-1 ring-[#38b5aa] scale-110' : 'hover:scale-105'}`}
                 style={{ backgroundColor: c }}
                 title={c}
               />
@@ -135,24 +135,24 @@ export function PersonaForm({ open, onClose, persona }: PersonaFormProps) {
         </div>
 
         {/* Vorschau */}
-        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="flex items-center gap-3 p-3 bg-[#f0f0f0] border border-[#e5e7eb]">
           <div
-            className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white select-none"
+            className="w-10 h-10 shrink-0 flex items-center justify-center text-sm font-bold text-white select-none"
             style={{ backgroundColor: color }}
           >
             {getInitials(name || 'P')}
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-800">{name || 'Persona-Name'}</p>
-            {exampleUser && <p className="text-xs text-slate-500">{exampleUser}</p>}
+            <p className="text-sm font-semibold text-[#24303e]">{name || 'Persona-Name'}</p>
+            {exampleUser && <p className="text-xs text-[#767676]">{exampleUser}</p>}
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#56606c] bg-[#f0f0f0] hover:bg-[#e5e7eb] transition-colors">
             Abbrechen
           </button>
-          <button type="submit" className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+          <button type="submit" className="px-4 py-2 text-sm text-[#24303e] bg-[#38b5aa] hover:bg-[#2ea095] transition-colors">
             {persona ? 'Speichern' : 'Anlegen'}
           </button>
         </div>

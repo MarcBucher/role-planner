@@ -21,7 +21,7 @@ import { EinstellungenPage } from './pages/EinstellungenPage';
 export default function App() {
   return (
     <BrowserRouter basename="/role-planner">
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-[#f0f0f0]">
         <Sidebar />
         <div className="flex flex-col flex-1 overflow-hidden">
           <Routes>

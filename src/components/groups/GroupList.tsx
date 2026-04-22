@@ -28,27 +28,27 @@ function SortableGroupItem({ group: g, roleNames, roleCount, onEdit, onDeleteCli
       <button
         {...listeners}
         {...attributes}
-        className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mt-0.5 mr-2 shrink-0"
+        className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing mt-0.5 mr-2 shrink-0"
         tabIndex={-1}
       >
         <GripVertical size={14} />
       </button>
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-slate-800">{g.name}</p>
-        {g.description && <p className="text-xs text-slate-500 mt-0.5">{g.description}</p>}
+        <p className="font-semibold text-[#24303e]">{g.name}</p>
+        {g.description && <p className="text-xs text-[#767676] mt-0.5">{g.description}</p>}
         {roleCount > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
             {roleNames.map((n, i) => <Badge key={i} label={n} />)}
-            {roleCount > 3 && <span className="text-xs text-slate-400">+{roleCount - 3} weitere</span>}
+            {roleCount > 3 && <span className="text-xs text-[#c8c8c8]">+{roleCount - 3} weitere</span>}
           </div>
         )}
-        {roleCount === 0 && <p className="text-xs text-slate-400 mt-1">Keine Rollen zugewiesen</p>}
+        {roleCount === 0 && <p className="text-xs text-[#c8c8c8] mt-1">Keine Rollen zugewiesen</p>}
       </div>
       <div className="flex gap-1 shrink-0 ml-4 mt-0.5">
-        <button onClick={() => onEdit(g)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+        <button onClick={() => onEdit(g)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(g.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+        <button onClick={() => onDeleteClick(g.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -89,10 +89,10 @@ export function GroupList() {
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{groups.length} Gruppe{groups.length !== 1 ? 'n' : ''}</p>
+        <p className="text-sm text-[#767676]">{groups.length} Gruppe{groups.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> Gruppe hinzufügen
         </button>
@@ -108,7 +108,7 @@ export function GroupList() {
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={groups.map((g) => g.id)} strategy={verticalListSortingStrategy}>
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+            <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
               {groups.map((g) => {
                 const roleCount = g.roleIds.length;
                 const roleNames = g.roleIds.slice(0, 3)

@@ -25,20 +25,20 @@ function SortableTableItem({ entry: t, onEdit, onDeleteClick }: SortableTableIte
       <button
         {...listeners}
         {...attributes}
-        className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mr-2 shrink-0"
+        className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing mr-2 shrink-0"
         tabIndex={-1}
       >
         <GripVertical size={14} />
       </button>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">{t.key}</span>
-          <span className="text-sm font-medium text-slate-800">{t.label}</span>
+          <span className="font-mono text-xs font-semibold text-[#24303e] bg-[#f0f0f0] px-1.5 py-0.5 rounded">{t.key}</span>
+          <span className="text-sm font-medium text-[#24303e]">{t.label}</span>
         </div>
       </div>
       <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(t)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><Pencil size={14} /></button>
-        <button onClick={() => onDeleteClick(t.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
+        <button onClick={() => onEdit(t)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
+        <button onClick={() => onDeleteClick(t.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
       </div>
     </div>
   );
@@ -91,10 +91,10 @@ export function TableList() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{tables.length} Tabelle{tables.length !== 1 ? 'n' : ''}</p>
+        <p className="text-sm text-[#767676]">{tables.length} Tabelle{tables.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> Tabelle hinzufügen
         </button>
@@ -113,8 +113,8 @@ export function TableList() {
             <div className="space-y-4">
               {Object.entries(groups).map(([mod, items]) => (
                 <div key={mod}>
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{mod}</h3>
-                  <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+                  <h3 className="text-xs font-semibold text-[#767676] uppercase tracking-wide mb-2">{mod}</h3>
+                  <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
                     {items.map((t) => (
                       <SortableTableItem key={t.id} entry={t} onEdit={handleEdit} onDeleteClick={handleDeleteClick} />
                     ))}

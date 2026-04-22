@@ -12,9 +12,9 @@ import { Badge } from '../common/Badge';
 import type { Role, RoleType } from '../../types';
 
 const typeLabels: Record<RoleType, { label: string; color: string }> = {
-  base:     { label: 'Base',     color: '#64748b' },
-  custom:   { label: 'Custom',   color: '#3b82f6' },
-  elevated: { label: 'Elevated', color: '#8b5cf6' },
+  base:     { label: 'Base',     color: '#56606c' },
+  custom:   { label: 'Custom',   color: '#38b5aa' },
+  elevated: { label: 'Elevated', color: '#f7aa08' },
 };
 
 interface SortableRoleItemProps {
@@ -35,32 +35,32 @@ function SortableRoleItem({ role: r, capNames, capCount, onEdit, onDeleteClick }
       <button
         {...listeners}
         {...attributes}
-        className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mt-0.5 mr-2 shrink-0"
+        className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing mt-0.5 mr-2 shrink-0"
         tabIndex={-1}
       >
         <GripVertical size={14} />
       </button>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-sm font-semibold text-slate-800">{r.name}</span>
+          <span className="font-mono text-sm font-semibold text-[#24303e]">{r.name}</span>
           {r.label && r.label !== r.name && (
-            <span className="text-sm text-slate-500">– {r.label}</span>
+            <span className="text-sm text-[#767676]">– {r.label}</span>
           )}
           <Badge label={typeInfo.label} color={typeInfo.color} />
         </div>
-        {r.description && <p className="text-xs text-slate-500 mt-0.5">{r.description}</p>}
+        {r.description && <p className="text-xs text-[#767676] mt-0.5">{r.description}</p>}
         {capCount > 0 && (
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[#c8c8c8] mt-1">
             {capCount} Fähigkeit{capCount !== 1 ? 'en' : ''}
             {capNames.length > 0 && `: ${capNames.join(', ')}${capCount > 3 ? ` +${capCount - 3}` : ''}`}
           </p>
         )}
       </div>
       <div className="flex gap-1 shrink-0 ml-4 mt-0.5">
-        <button onClick={() => onEdit(r)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+        <button onClick={() => onEdit(r)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(r.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+        <button onClick={() => onDeleteClick(r.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -104,10 +104,10 @@ export function RoleList() {
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{roles.length} Rolle{roles.length !== 1 ? 'n' : ''}</p>
+        <p className="text-sm text-[#767676]">{roles.length} Rolle{roles.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> Rolle hinzufügen
         </button>
@@ -123,7 +123,7 @@ export function RoleList() {
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={roles.map((r) => r.id)} strategy={verticalListSortingStrategy}>
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+            <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
               {roles.map((r) => {
                 const capCount = r.capabilityIds.length;
                 const capNames = r.capabilityIds.slice(0, 3)

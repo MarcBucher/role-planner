@@ -46,7 +46,7 @@ function SortableModuleItem({
             autoFocus
           />
           <button onClick={onCommitEdit} className="p-1 text-green-600 hover:bg-green-50 rounded"><Check size={14} /></button>
-          <button onClick={onCancelEdit} className="p-1 text-slate-400 hover:bg-slate-100 rounded"><X size={14} /></button>
+          <button onClick={onCancelEdit} className="p-1 text-[#767676] hover:bg-[#f0f0f0] rounded"><X size={14} /></button>
         </div>
       ) : (
         <>
@@ -54,19 +54,19 @@ function SortableModuleItem({
             <button
               {...listeners}
               {...attributes}
-              className="p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing touch-none"
+              className="p-1 text-[#c8c8c8] hover:text-[#767676] cursor-grab active:cursor-grabbing touch-none"
               tabIndex={-1}
             >
               <GripVertical size={14} />
             </button>
             <div>
-              <span className="text-sm font-medium text-slate-800">{name}</span>
-              <span className="ml-2 text-xs text-slate-400">{tableCount} Tabelle{tableCount !== 1 ? 'n' : ''}</span>
+              <span className="text-sm font-medium text-[#24303e]">{name}</span>
+              <span className="ml-2 text-xs text-[#767676]">{tableCount} Tabelle{tableCount !== 1 ? 'n' : ''}</span>
             </div>
           </div>
           <div className="flex gap-1 shrink-0 ml-4">
-            <button onClick={onStartEdit} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><Pencil size={14} /></button>
-            <button onClick={onDeleteClick} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
+            <button onClick={onStartEdit} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
+            <button onClick={onDeleteClick} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
           </div>
         </>
       )}
@@ -125,7 +125,7 @@ export function ModuleList() {
   return (
     <div className="max-w-xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{modules.length} Modul{modules.length !== 1 ? 'e' : ''}</p>
+        <p className="text-sm text-[#767676]">{modules.length} Modul{modules.length !== 1 ? 'e' : ''}</p>
       </div>
 
       {modules.length === 0 ? (
@@ -137,7 +137,7 @@ export function ModuleList() {
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={modules} strategy={verticalListSortingStrategy}>
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 mb-5">
+            <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0] mb-5">
               {modules.map((m) => (
                 <SortableModuleItem
                   key={m}
@@ -164,11 +164,11 @@ export function ModuleList() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Neues Modul, z.B. ITSM"
-          className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa]"
         />
         <button
           type="submit"
-          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
         >
           <Plus size={14} /> Hinzufügen
         </button>
