@@ -2,9 +2,12 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Shield, Zap,
   Grid3X3, Settings, ChevronLeft, ChevronRight,
-  Table2, Monitor, Columns2, Layers, LayoutList, Users2
+  Table2, Monitor, Columns2, Layers, LayoutList, Users2,
+  LogOut, CloudOff, Cloud, Loader2
 } from 'lucide-react';
 import { useState } from 'react';
+import { useStore } from '../../store';
+import { useAuth } from '../../hooks/useAuth';
 
 const navItems = [
   { group: 'Übersicht', items: [
@@ -38,8 +41,31 @@ const navItems = [
   ]},
 ];
 
+function SyncIndicator({ collapsed }: { collapsed: boolean }) {
+  const syncStatus = useStore((s) => s.syncStatus);
+  const workspaceName = useStore((s) => s.workspaceName);
+
+  const icon = syncStatus === 'syncing'
+    ? <Loader2 size={12} className="animate-spin text-[#38b5aa]" />
+    : syncStatus === 'error'
+    ? <CloudOff size={12} className="text-red-400" />
+    : <Cloud size={12} className="text-[#38b5aa]/60" />;
+
+  if (collapsed) return <div className="flex justify-center py-1">{icon}</div>;
+
+  return (
+    <div className="px-3 py-1.5 flex items-center gap-1.5">
+      {icon}
+      <span className="text-[10px] text-white/40 truncate">
+        {syncStatus === 'syncing' ? 'Speichert…' : syncStatus === 'error' ? 'Sync-Fehler' : workspaceName}
+      </span>
+    </div>
+  );
+}
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <aside className={`relative flex flex-col text-white transition-all duration-200 ${collapsed ? 'w-14' : 'w-56'} shrink-0 min-h-screen`} style={{ backgroundColor: '#24303e' }}>
@@ -85,6 +111,25 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* User + sync footer */}
+      <div className="border-t border-white/10 shrink-0">
+        <SyncIndicator collapsed={collapsed} />
+        {user && (
+          <div className={`flex items-center border-t border-white/10 ${collapsed ? 'justify-center px-1 py-2' : 'px-3 py-2 gap-2'}`}>
+            {!collapsed && (
+              <p className="text-[11px] text-white/50 truncate flex-1 min-w-0">{user.email}</p>
+            )}
+            <button
+              onClick={signOut}
+              className="p-1 text-white/40 hover:text-white hover:bg-[#2d3c4d] transition-colors shrink-0"
+              title="Abmelden"
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Collapse toggle */}
       <button

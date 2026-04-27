@@ -3,6 +3,7 @@ import { Download, Upload, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { PageContainer } from '../components/layout/PageContainer';
 import { exportJSON, importJSON } from '../utils/jsonBackup';
+import { WorkspaceMembers } from '../components/workspace/WorkspaceMembers';
 
 export function EinstellungenPage() {
   const { exportState, importState, resetAll, clearData, clearUITypes, clearTables, clearModules } = useStore();
@@ -35,6 +36,11 @@ export function EinstellungenPage() {
   return (
     <PageContainer title="Einstellungen">
       <div className="max-w-xl space-y-6">
+
+        <section className="bg-white border border-[#e5e7eb] p-5">
+          <h2 className="font-semibold text-[#24303e] mb-4">Workspace & Team</h2>
+          <WorkspaceMembers />
+        </section>
 
         <section className="bg-white border border-[#e5e7eb] p-5">
           <h2 className="font-semibold text-[#24303e] mb-1">JSON-Backup</h2>

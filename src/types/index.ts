@@ -4,6 +4,8 @@ export type RoleType = 'base' | 'custom' | 'elevated';
 
 export type PersonaScope = 'intern' | 'extern';
 
+export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline';
+
 export interface CrudFlags {
   create: boolean;
   createFilter?: string;
@@ -86,4 +88,5 @@ export interface AppState {
   modules: string[];
   version: string;
   exportedAt: string;
+  _nonce?: string;
 }
