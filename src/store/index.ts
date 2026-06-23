@@ -56,6 +56,7 @@ interface StoreState {
   updatePersona: (id: ID, patch: Partial<Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>>) => void;
   deletePersona: (id: ID) => void;
   togglePersonaGroup: (personaId: ID, groupId: ID) => void;
+  togglePersonaRole: (personaId: ID, roleId: ID) => void;
   reorderPersonas: (from: number, to: number) => void;
 
   // Group actions
@@ -171,7 +172,7 @@ export const useStore = create<StoreState>()(
       const data = await loadWorkspaceData(workspaceId);
       if (data) {
         set((s) => {
-          s.personas = data.personas ?? [];
+          s.personas = (data.personas ?? []).map((p) => ({ ...p, roleIds: p.roleIds ?? [] }));
           s.groups = data.groups ?? [];
           s.roles = (data.roles ?? []).map((r) => ({ ...r, containsRoleIds: r.containsRoleIds ?? [] }));
           s.capabilities = data.capabilities ?? [];
@@ -194,7 +195,7 @@ export const useStore = create<StoreState>()(
             if (incoming._nonce && incoming._nonce === lastSavedNonce) return;
             // Apply remote changes
             set((s) => {
-              s.personas = incoming.personas ?? [];
+              s.personas = (incoming.personas ?? []).map((p) => ({ ...p, roleIds: p.roleIds ?? [] }));
               s.groups = incoming.groups ?? [];
               s.roles = (incoming.roles ?? []).map((r) => ({ ...r, containsRoleIds: r.containsRoleIds ?? [] }));
               s.capabilities = incoming.capabilities ?? [];
@@ -234,6 +235,19 @@ export const useStore = create<StoreState>()(
         const idx = p.groupIds.indexOf(groupId);
         if (idx >= 0) p.groupIds.splice(idx, 1);
         else p.groupIds.push(groupId);
+        p.updatedAt = now();
+      });
+      get().setSyncStatus('syncing');
+      scheduleAutoSave(get);
+    },
+    togglePersonaRole: (personaId, roleId) => {
+      set((s) => {
+        const p = s.personas.find((x) => x.id === personaId);
+        if (!p) return;
+        if (!p.roleIds) p.roleIds = [];
+        const idx = p.roleIds.indexOf(roleId);
+        if (idx >= 0) p.roleIds.splice(idx, 1);
+        else p.roleIds.push(roleId);
         p.updatedAt = now();
       });
       get().setSyncStatus('syncing');
@@ -307,6 +321,7 @@ export const useStore = create<StoreState>()(
       const usages = [
         ...state.groups.filter((g) => g.roleIds.includes(id)).map((g) => `Gruppe: ${g.name}`),
         ...state.roles.filter((r) => (r.containsRoleIds ?? []).includes(id)).map((r) => `Rolle: ${r.label || r.name}`),
+        ...state.personas.filter((p) => (p.roleIds ?? []).includes(id)).map((p) => `Persona: ${p.name}`),
       ];
       if (usages.length > 0) return { blocked: true, usages };
       set((s) => { s.roles = s.roles.filter((x) => x.id !== id); });

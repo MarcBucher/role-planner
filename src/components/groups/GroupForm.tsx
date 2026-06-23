@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../../store';
 import { Modal } from '../common/Modal';
-import type { Group } from '../../types';
+import type { Group, PersonaScope } from '../../types';
 
 interface GroupFormProps {
   open: boolean;
@@ -15,23 +15,26 @@ export function GroupForm({ open, onClose, group }: GroupFormProps) {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [scope, setScope] = useState<PersonaScope>('intern');
 
   useEffect(() => {
     if (group) {
       setName(group.name);
       setDescription(group.description);
+      setScope(group.scope ?? 'intern');
     } else {
       setName('');
       setDescription('');
+      setScope('intern');
     }
   }, [group, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    const data = { name: name.trim(), description: description.trim(), roleIds: group?.roleIds ?? [] };
+    const data = { name: name.trim(), description: description.trim(), scope, roleIds: group?.roleIds ?? [] };
     if (group) {
-      updateGroup(group.id, { name: data.name, description: data.description });
+      updateGroup(group.id, { name: data.name, description: data.description, scope });
     } else {
       addGroup(data);
     }
@@ -52,6 +55,29 @@ export function GroupForm({ open, onClose, group }: GroupFormProps) {
             autoFocus
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-[#24303e] mb-2">Typ</label>
+          <div className="flex gap-3">
+            {(['intern', 'extern'] as PersonaScope[]).map((s) => (
+              <label key={s} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="scope"
+                  value={s}
+                  checked={scope === s}
+                  onChange={() => setScope(s)}
+                  className="accent-[#38b5aa]"
+                />
+                <span className={`text-sm font-medium px-2 py-0.5 rounded ${
+                  s === 'intern' ? 'bg-[#38b5aa]/10 text-[#38b5aa]' : 'bg-orange-50 text-orange-700'
+                }`}>
+                  {s === 'intern' ? 'Intern' : 'Extern'}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <div>

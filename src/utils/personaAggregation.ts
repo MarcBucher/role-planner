@@ -7,7 +7,10 @@ export type CrudAgg = Record<string, {
 
 export function getRoles(persona: Persona, groups: Group[], roles: Role[]): Role[] {
   const personaGroups = groups.filter((g) => persona.groupIds.includes(g.id));
-  const roleIdSet = new Set(personaGroups.flatMap((g) => g.roleIds));
+  const roleIdSet = new Set([
+    ...personaGroups.flatMap((g) => g.roleIds),
+    ...(persona.roleIds ?? []),
+  ]);
   return roles.filter((r) => roleIdSet.has(r.id));
 }
 
@@ -31,6 +34,11 @@ export function expandRoles(rootRoles: Role[], allRoles: Role[]): Role[] {
 
 export function getEffectiveRoles(persona: Persona, groups: Group[], roles: Role[]): Role[] {
   return expandRoles(getRoles(persona, groups, roles), roles);
+}
+
+/** Alle transitiv enthaltenen Rollen einer Rolle (ohne die Rolle selbst, zyklus-sicher). */
+export function getContainedRoles(role: Role, allRoles: Role[]): Role[] {
+  return expandRoles([role], allRoles).filter((r) => r.id !== role.id);
 }
 
 export function getInheritanceTrace(directRoles: Role[], allRoles: Role[]): Map<ID, ID> {

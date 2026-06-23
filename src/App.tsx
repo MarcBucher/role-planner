@@ -12,6 +12,7 @@ import { GruppenPage } from './pages/GruppenPage';
 import { RollenPage } from './pages/RollenPage';
 import { FaehigkeitenPage } from './pages/FaehigkeitenPage';
 import { PersonaGroupMatrixPage } from './pages/PersonaGroupMatrixPage';
+import { PersonaRoleMatrixPage } from './pages/PersonaRoleMatrixPage';
 import { GroupRoleMatrixPage } from './pages/GroupRoleMatrixPage';
 import { RoleCapabilityMatrixPage } from './pages/RoleCapabilityMatrixPage';
 import { RoleUIMatrixPage } from './pages/RoleUIMatrixPage';
@@ -36,6 +37,7 @@ function AppShell() {
           <Route path="/rollen" element={<RollenPage />} />
           <Route path="/faehigkeiten" element={<FaehigkeitenPage />} />
           <Route path="/matrix/persona-gruppe" element={<PersonaGroupMatrixPage />} />
+          <Route path="/matrix/persona-rolle" element={<PersonaRoleMatrixPage />} />
           <Route path="/matrix/gruppe-rolle" element={<GroupRoleMatrixPage />} />
           <Route path="/matrix/rolle-rolle" element={<RoleContainsRoleMatrixPage />} />
           <Route path="/matrix/rolle-faehigkeit" element={<RoleCapabilityMatrixPage />} />

@@ -18,6 +18,7 @@ export function DashboardPage() {
 
   const matrices = [
     { label: 'Persona × Gruppe',   to: '/matrix/persona-gruppe',   icon: Grid3X3 },
+    { label: 'Persona × Rolle (direkt)', to: '/matrix/persona-rolle', icon: Grid3X3 },
     { label: 'Gruppe × Rolle',     to: '/matrix/gruppe-rolle',     icon: Grid3X3 },
     { label: 'Rolle × Rolle (Vererbung)', to: '/matrix/rolle-rolle', icon: Grid3X3 },
     { label: 'Rolle × Fähigkeit',  to: '/matrix/rolle-faehigkeit', icon: Grid3X3 },

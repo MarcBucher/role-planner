@@ -23,6 +23,7 @@ export interface Group {
   id: ID;
   name: string;
   description: string;
+  scope?: PersonaScope;
   roleIds: ID[];
   createdAt: string;
   updatedAt: string;
@@ -37,6 +38,7 @@ export interface Persona {
   exampleUser?: string;
   scope: PersonaScope;
   groupIds: ID[];
+  roleIds?: ID[];
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +49,7 @@ export interface Role {
   label: string;
   description: string;
   type: RoleType;
+  scope?: PersonaScope;
   containsRoleIds: ID[];
   capabilityIds: ID[];
   uiAccess: string[];

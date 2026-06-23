@@ -34,7 +34,14 @@ function SortableGroupItem({ group: g, roleNames, roleCount, onEdit, onDeleteCli
         <GripVertical size={14} />
       </button>
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-[#24303e]">{g.name}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="font-semibold text-[#24303e]">{g.name}</p>
+          <span className={`text-[10px] font-semibold px-1 rounded ${
+            (g.scope ?? 'intern') === 'extern' ? 'bg-orange-100 text-orange-600' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
+          }`}>
+            {(g.scope ?? 'intern') === 'extern' ? 'Extern' : 'Intern'}
+          </span>
+        </div>
         {g.description && <p className="text-xs text-[#767676] mt-0.5">{g.description}</p>}
         {roleCount > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">

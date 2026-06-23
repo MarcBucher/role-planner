@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../../store';
 import { Modal } from '../common/Modal';
-import type { Role, RoleType } from '../../types';
+import type { Role, RoleType, PersonaScope } from '../../types';
 
 interface RoleFormProps {
   open: boolean;
@@ -17,6 +17,7 @@ export function RoleForm({ open, onClose, role }: RoleFormProps) {
   const [label, setLabel] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<RoleType>('base');
+  const [scope, setScope] = useState<PersonaScope>('intern');
 
   useEffect(() => {
     if (role) {
@@ -24,8 +25,9 @@ export function RoleForm({ open, onClose, role }: RoleFormProps) {
       setLabel(role.label);
       setDescription(role.description);
       setType(role.type);
+      setScope(role.scope ?? 'intern');
     } else {
-      setName(''); setLabel(''); setDescription(''); setType('base');
+      setName(''); setLabel(''); setDescription(''); setType('base'); setScope('intern');
     }
   }, [role, open]);
 
@@ -37,6 +39,7 @@ export function RoleForm({ open, onClose, role }: RoleFormProps) {
       label: label.trim() || name.trim(),
       description: description.trim(),
       type,
+      scope,
       containsRoleIds: role?.containsRoleIds ?? [],
       capabilityIds: role?.capabilityIds ?? [],
       uiAccess: role?.uiAccess ?? [],
@@ -86,6 +89,28 @@ export function RoleForm({ open, onClose, role }: RoleFormProps) {
             <option value="custom">Custom – Eigene/kundenspezifische Rolle</option>
             <option value="elevated">Elevated – Erweiterte Berechtigungen</option>
           </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[#24303e] mb-2">Einsatz</label>
+          <div className="flex gap-3">
+            {(['intern', 'extern'] as PersonaScope[]).map((s) => (
+              <label key={s} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="scope"
+                  value={s}
+                  checked={scope === s}
+                  onChange={() => setScope(s)}
+                  className="accent-[#38b5aa]"
+                />
+                <span className={`text-sm font-medium px-2 py-0.5 rounded ${
+                  s === 'intern' ? 'bg-[#38b5aa]/10 text-[#38b5aa]' : 'bg-orange-50 text-orange-700'
+                }`}>
+                  {s === 'intern' ? 'Intern' : 'Extern'}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
         <div>
           <label className="block text-xs font-medium text-[#24303e] mb-1">Beschreibung</label>

@@ -21,6 +21,7 @@ function getInitials(name: string): string {
 interface PersonaData {
   persona: Persona;
   groupNames: string;
+  personaDirectRoleNames: string;
   directRoleNames: string;
   effectiveRoleNames: string;
   ui: Set<string>;
@@ -166,9 +167,12 @@ export function PersonaUebersicht() {
       return r.name;
     }).join(', ');
 
+    const personaDirectRoles = roles.filter((r) => (p.roleIds ?? []).includes(r.id));
+
     return {
       persona: p,
       groupNames: pGroups.map((g) => g.name).join(', '),
+      personaDirectRoleNames: personaDirectRoles.map((r) => r.name).join(', '),
       directRoleNames: directRoles.map((r) => r.name).join(', '),
       effectiveRoleNames,
       ui: aggregateUI(effectiveRoles),
@@ -189,8 +193,8 @@ export function PersonaUebersicht() {
   rows.push({ type: 'meta', rowKey: 'meta:exampleUser', label: 'Beispiel-User', getValue: (pd) => pd.persona.exampleUser ?? '–' });
   rows.push({ type: 'meta', rowKey: 'meta:scope',       label: 'Typ',           getValue: (pd) => pd.persona.scope === 'extern' ? 'Extern' : 'Intern' });
   rows.push({ type: 'meta', rowKey: 'meta:groups',        label: 'Gruppen',         getValue: (pd) => pd.groupNames || '–' });
-  rows.push({ type: 'meta', rowKey: 'meta:roles-direct', label: '↳ Rollen (direkt)', indent: true, getValue: (pd) => pd.directRoleNames || '–' });
-  rows.push({ type: 'meta', rowKey: 'meta:roles-eff',    label: '↳ Rollen (effektiv)', indent: true, getValue: (pd) => pd.effectiveRoleNames || '–' });
+  rows.push({ type: 'meta', rowKey: 'meta:roles-persona', label: '↳ Rollen (direkt an Persona)', indent: true, getValue: (pd) => pd.personaDirectRoleNames || '–' });
+  rows.push({ type: 'meta', rowKey: 'meta:roles-direct', label: '↳ Rollen (über Gruppe)', indent: true, getValue: (pd) => pd.directRoleNames || '–' });
 
   if (uiTypes.length > 0) {
     rows.push({ type: 'section', label: 'UI-Zugriff' });

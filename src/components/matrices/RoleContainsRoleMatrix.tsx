@@ -2,10 +2,13 @@ import { useStore } from '../../store';
 import { EmptyState } from '../common/EmptyState';
 import { Grid3X3 } from 'lucide-react';
 import { expandRoles } from '../../utils/personaAggregation';
+import { useCrosshair, CROSS_HEADER_CLS, CROSS_HEADER_BG, CROSS_TINT_CLS } from '../../hooks/useCrosshair';
+import { CrosshairLabel } from './CrosshairLabel';
 
 export function RoleContainsRoleMatrix() {
   const roles = useStore((s) => s.roles);
   const toggleRoleContainsRole = useStore((s) => s.toggleRoleContainsRole);
+  const cross = useCrosshair();
 
   if (roles.length < 2) {
     return (
@@ -30,10 +33,14 @@ export function RoleContainsRoleMatrix() {
                 <th className="sticky left-0 z-10 bg-[#f0f0f0] px-4 py-2.5 text-left text-xs font-semibold text-[#56606c] border-b border-r border-slate-200 min-w-[180px]">
                   Enthält →
                 </th>
-                {roles.map((r) => (
-                  <th key={r.id} className="border-b border-[#e5e7eb]" style={{ width: '2.5rem' }}>
+                {roles.map((r, colIdx) => (
+                  <th
+                    key={r.id}
+                    className={`border-b border-[#e5e7eb] transition-colors ${colIdx === cross.col ? CROSS_HEADER_CLS : ''}`}
+                    style={{ width: '2.5rem' }}
+                  >
                     <span
-                      className="block text-xs font-medium text-[#56606c] px-1 py-2"
+                      className="block text-xs font-medium px-1 py-2"
                       style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}
                       title={r.label}
                     >
@@ -43,28 +50,42 @@ export function RoleContainsRoleMatrix() {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody onMouseLeave={cross.clear}>
               {roles.map((rowRole, rowIdx) => {
                 const transitiveIds = new Set(expandRoles([rowRole], roles).map((r) => r.id));
+                const isRowHot = rowIdx === cross.row;
                 return (
                   <tr key={rowRole.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#f0f0f0]/50'}>
                     <td
-                      className="sticky left-0 z-10 px-4 py-2.5 border-r border-slate-200"
-                      style={{ backgroundColor: rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
+                      className="sticky left-0 z-10 px-4 py-2.5 border-r border-slate-200 transition-colors"
+                      style={{ backgroundColor: isRowHot ? CROSS_HEADER_BG : rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
                     >
-                      <p className="text-sm font-semibold text-[#24303e] font-mono">{rowRole.name}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-[#24303e] font-mono">{rowRole.name}</p>
+                        <span className={`text-[10px] font-semibold px-1 rounded shrink-0 ${
+                          (rowRole.scope ?? 'intern') === 'extern' ? 'bg-orange-100 text-orange-600' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
+                        }`}>
+                          {(rowRole.scope ?? 'intern') === 'extern' ? 'E' : 'I'}
+                        </span>
+                      </div>
                       {rowRole.label && rowRole.label !== rowRole.name && (
                         <p className="text-xs text-[#767676]">{rowRole.label}</p>
                       )}
                     </td>
-                    {roles.map((colRole) => {
+                    {roles.map((colRole, colIdx) => {
                       const isSelf = rowRole.id === colRole.id;
                       const isDirect = (rowRole.containsRoleIds ?? []).includes(colRole.id);
                       const isTransitive = !isDirect && transitiveIds.has(colRole.id);
+                      const isHot = isRowHot || colIdx === cross.col;
 
                       if (isSelf) {
                         return (
-                          <td key={colRole.id} className="text-center border-slate-100 border-b p-0 bg-[#f0f0f0]" title="Selbstreferenz nicht möglich">
+                          <td
+                            key={colRole.id}
+                            className="text-center border-slate-100 border-b p-0 bg-[#f0f0f0]"
+                            title="Selbstreferenz nicht möglich"
+                            onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, colRole.name)}
+                          >
                             <div className="w-full h-full flex items-center justify-center py-2.5">
                               <span className="text-[#c8c8c8] text-xs">╳</span>
                             </div>
@@ -73,7 +94,11 @@ export function RoleContainsRoleMatrix() {
                       }
 
                       return (
-                        <td key={colRole.id} className="text-center border-slate-100 border-b p-0">
+                        <td
+                          key={colRole.id}
+                          className={`text-center border-slate-100 border-b p-0 transition-colors ${isHot && !isDirect && !isTransitive ? CROSS_TINT_CLS : ''}`}
+                          onMouseEnter={() => cross.onEnter(rowIdx, colIdx)}
+                        >
                           <button
                             onClick={() => toggleRoleContainsRole(rowRole.id, colRole.id)}
                             className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
@@ -126,6 +151,7 @@ export function RoleContainsRoleMatrix() {
           <span className="inline-block w-3 h-3 rounded bg-[#f0f0f0] border border-[#e5e7eb]" /> Transitiv enthalten (schreibgeschützt)
         </span>
       </p>
+      <CrosshairLabel hover={cross.hover} />
     </div>
   );
 }

@@ -25,6 +25,7 @@ const navItems = [
   ]},
   { group: 'Matrizen', items: [
     { to: '/matrix/persona-gruppe', label: 'Persona × Gruppe', icon: Grid3X3 },
+    { to: '/matrix/persona-rolle', label: 'Persona × Rolle (direkt)', icon: Grid3X3 },
     { to: '/matrix/gruppe-rolle', label: 'Gruppe × Rolle', icon: Grid3X3 },
     { to: '/matrix/rolle-rolle', label: 'Rolle × Rolle (Vererbung)', icon: Grid3X3 },
     { to: '/matrix/rolle-faehigkeit', label: 'Rolle × Fähigkeit', icon: Grid3X3 },

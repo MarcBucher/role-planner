@@ -47,6 +47,11 @@ function SortableRoleItem({ role: r, capNames, capCount, onEdit, onDeleteClick }
             <span className="text-sm text-[#767676]">– {r.label}</span>
           )}
           <Badge label={typeInfo.label} color={typeInfo.color} />
+          <span className={`text-[10px] font-semibold px-1 rounded ${
+            (r.scope ?? 'intern') === 'extern' ? 'bg-orange-100 text-orange-600' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
+          }`}>
+            {(r.scope ?? 'intern') === 'extern' ? 'Extern' : 'Intern'}
+          </span>
         </div>
         {r.description && <p className="text-xs text-[#767676] mt-0.5">{r.description}</p>}
         {capCount > 0 && (
