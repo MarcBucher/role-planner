@@ -9,6 +9,7 @@ export function RoleUIMatrix() {
   const roles = useStore((s) => s.roles);
   const uiTypes = useStore((s) => s.uiTypes);
   const toggleRoleUI = useStore((s) => s.toggleRoleUI);
+  const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
   if (roles.length === 0) {
@@ -93,8 +94,8 @@ export function RoleUIMatrix() {
                         onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, ui.label)}
                       >
                         <button
-                          onClick={() => !isInherited && toggleRoleUI(r.id, ui.key)}
-                          disabled={isInherited}
+                          onClick={() => !isInherited && !readOnly && toggleRoleUI(r.id, ui.key)}
+                          disabled={isInherited || readOnly}
                           className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
                             isDirect
                               ? 'bg-cyan-50 hover:bg-cyan-100 text-cyan-600'

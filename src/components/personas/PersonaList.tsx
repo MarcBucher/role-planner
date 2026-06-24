@@ -33,10 +33,11 @@ interface SortablePersonaItemProps {
   onEdit: (p: Persona) => void;
   onDeleteClick: (id: string) => void;
   isDndActive: boolean;
+  readOnly: boolean;
 }
 
-function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick, isDndActive }: SortablePersonaItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: p.id });
+function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick, isDndActive, readOnly }: SortablePersonaItemProps) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: p.id, disabled: readOnly });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
@@ -75,11 +76,11 @@ function SortablePersonaItem({ persona: p, assignedGroups, onEdit, onDeleteClick
           </div>
         </div>
       </div>
-      <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(p)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
+      <div className={`flex gap-1 shrink-0 ml-4 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+        <button onClick={() => onEdit(p)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(p.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
+        <button onClick={() => onDeleteClick(p.id)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -92,6 +93,7 @@ export function PersonaList() {
   const groups = useStore((s) => s.groups);
   const deletePersona = useStore((s) => s.deletePersona);
   const reorderPersonas = useStore((s) => s.reorderPersonas);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Persona | null>(null);
@@ -142,7 +144,10 @@ export function PersonaList() {
         </div>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-2 px-3 py-1.5 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Persona hinzufügen
         </button>
@@ -169,6 +174,7 @@ export function PersonaList() {
                     onEdit={handleEdit}
                     onDeleteClick={setDeleteId}
                     isDndActive={isDndActive}
+                    readOnly={readOnly}
                   />
                 );
               })}

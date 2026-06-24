@@ -14,10 +14,11 @@ interface SortableCapItemProps {
   cap: Capability;
   onEdit: (c: Capability) => void;
   onDeleteClick: (id: string) => void;
+  readOnly: boolean;
 }
 
-function SortableCapItem({ cap: c, onEdit, onDeleteClick }: SortableCapItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: c.id });
+function SortableCapItem({ cap: c, onEdit, onDeleteClick, readOnly }: SortableCapItemProps) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: c.id, disabled: readOnly });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
@@ -34,11 +35,11 @@ function SortableCapItem({ cap: c, onEdit, onDeleteClick }: SortableCapItemProps
         <p className="text-sm font-medium text-[#24303e]">{c.name}</p>
         {c.description && <p className="text-xs text-[#767676] mt-0.5">{c.description}</p>}
       </div>
-      <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(c)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
+      <div className={`flex gap-1 shrink-0 ml-4 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+        <button onClick={() => onEdit(c)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(c.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+        <button onClick={() => onDeleteClick(c.id)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -51,6 +52,7 @@ export function CapabilityList() {
   const roles = useStore((s) => s.roles);
   const deleteCapability = useStore((s) => s.deleteCapability);
   const reorderCapabilities = useStore((s) => s.reorderCapabilities);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Capability | null>(null);
@@ -88,7 +90,10 @@ export function CapabilityList() {
         <p className="text-sm text-[#767676]">{capabilities.length} Fähigkeit{capabilities.length !== 1 ? 'en' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-2 px-3 py-1.5 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Fähigkeit hinzufügen
         </button>
@@ -115,6 +120,7 @@ export function CapabilityList() {
                         cap={c}
                         onEdit={handleEdit}
                         onDeleteClick={handleDeleteClick}
+                        readOnly={readOnly}
                       />
                     ))}
                   </div>

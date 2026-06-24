@@ -17,10 +17,11 @@ interface SortableGroupItemProps {
   roleCount: number;
   onEdit: (g: Group) => void;
   onDeleteClick: (id: string) => void;
+  readOnly: boolean;
 }
 
-function SortableGroupItem({ group: g, roleNames, roleCount, onEdit, onDeleteClick }: SortableGroupItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: g.id });
+function SortableGroupItem({ group: g, roleNames, roleCount, onEdit, onDeleteClick, readOnly }: SortableGroupItemProps) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: g.id, disabled: readOnly });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
@@ -51,11 +52,11 @@ function SortableGroupItem({ group: g, roleNames, roleCount, onEdit, onDeleteCli
         )}
         {roleCount === 0 && <p className="text-xs text-[#c8c8c8] mt-1">Keine Rollen zugewiesen</p>}
       </div>
-      <div className="flex gap-1 shrink-0 ml-4 mt-0.5">
-        <button onClick={() => onEdit(g)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
+      <div className={`flex gap-1 shrink-0 ml-4 mt-0.5 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+        <button onClick={() => onEdit(g)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(g.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
+        <button onClick={() => onDeleteClick(g.id)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -69,6 +70,7 @@ export function GroupList() {
   const roles = useStore((s) => s.roles);
   const deleteGroup = useStore((s) => s.deleteGroup);
   const reorderGroups = useStore((s) => s.reorderGroups);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Group | null>(null);
@@ -99,7 +101,10 @@ export function GroupList() {
         <p className="text-sm text-[#767676]">{groups.length} Gruppe{groups.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-2 px-3 py-1.5 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Gruppe hinzufügen
         </button>
@@ -129,6 +134,7 @@ export function GroupList() {
                     roleNames={roleNames}
                     onEdit={handleEdit}
                     onDeleteClick={handleDeleteClick}
+                    readOnly={readOnly}
                   />
                 );
               })}

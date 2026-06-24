@@ -13,6 +13,7 @@ export function TableForm({ open, onClose, entry }: TableFormProps) {
   const addTable = useStore((s) => s.addTable);
   const updateTable = useStore((s) => s.updateTable);
   const modules = useStore((s) => s.modules);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [key, setKey] = useState('');
   const [label, setLabel] = useState('');
@@ -75,7 +76,7 @@ export function TableForm({ open, onClose, entry }: TableFormProps) {
         </div>
         <div className="flex justify-end gap-2 pt-1">
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#56606c] bg-[#f0f0f0] hover:bg-[#e5e7eb] transition-colors">Abbrechen</button>
-          <button type="submit" className="px-4 py-2 text-sm text-[#24303e] bg-[#38b5aa] hover:bg-[#2ea095] transition-colors">{entry ? 'Speichern' : 'Anlegen'}</button>
+          <button type="submit" disabled={readOnly} className="px-4 py-2 text-sm text-[#24303e] bg-[#38b5aa] hover:bg-[#2ea095] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">{entry ? 'Speichern' : 'Anlegen'}</button>
         </div>
       </form>
     </Modal>

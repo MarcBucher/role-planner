@@ -26,6 +26,7 @@ export function TableCrudMatrix() {
   const roles = useStore((s) => s.roles);
   const tables = useStore((s) => s.tables);
   const setTableCrud = useStore((s) => s.setTableCrud);
+  const readOnly = useStore((s) => s.readOnly);
   // col = tableIdx * 4 + crudIdx (0–3)
   const cross = useCrosshair();
 
@@ -151,8 +152,8 @@ export function TableCrudMatrix() {
                             }`}
                           >
                             <button
-                              onClick={() => !isInherited && toggle(r.id, t.key, k, checked)}
-                              disabled={isInherited}
+                              onClick={() => !isInherited && !readOnly && toggle(r.id, t.key, k, checked)}
+                              disabled={isInherited || readOnly}
                               className={`flex items-center justify-center w-full ${isInherited ? 'cursor-default' : ''}`}
                               title={
                                 checked

@@ -8,6 +8,7 @@ import { CrosshairLabel } from './CrosshairLabel';
 export function RoleContainsRoleMatrix() {
   const roles = useStore((s) => s.roles);
   const toggleRoleContainsRole = useStore((s) => s.toggleRoleContainsRole);
+  const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
   if (roles.length < 2) {
@@ -100,22 +101,24 @@ export function RoleContainsRoleMatrix() {
                           onMouseEnter={() => cross.onEnter(rowIdx, colIdx)}
                         >
                           <button
-                            onClick={() => toggleRoleContainsRole(rowRole.id, colRole.id)}
+                            onClick={() => !readOnly && toggleRoleContainsRole(rowRole.id, colRole.id)}
                             className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
                               isDirect
-                                ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'
+                                ? `bg-indigo-50 ${readOnly ? '' : 'hover:bg-indigo-100'} text-indigo-600`
                                 : isTransitive
                                 ? 'bg-[#f0f0f0] text-[#c8c8c8] cursor-default'
-                                : 'hover:bg-[#f0f0f0] text-transparent'
+                                : `${readOnly ? '' : 'hover:bg-[#f0f0f0]'} text-transparent`
                             }`}
                             title={
-                              isDirect
+                              readOnly
+                                ? 'Schreibschutz aktiv'
+                                : isDirect
                                 ? `${rowRole.name} enthält ${colRole.name} direkt – klicken zum Entfernen`
                                 : isTransitive
                                 ? `${colRole.name} ist bereits transitiv enthalten (über eine andere Rolle)`
                                 : `${colRole.name} zu ${rowRole.name} hinzufügen`
                             }
-                            disabled={isTransitive}
+                            disabled={isTransitive || readOnly}
                           >
                             {isDirect && (
                               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

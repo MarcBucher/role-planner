@@ -14,10 +14,11 @@ interface SortableTableItemProps {
   entry: TableEntry;
   onEdit: (t: TableEntry) => void;
   onDeleteClick: (id: string) => void;
+  readOnly: boolean;
 }
 
-function SortableTableItem({ entry: t, onEdit, onDeleteClick }: SortableTableItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: t.id });
+function SortableTableItem({ entry: t, onEdit, onDeleteClick, readOnly }: SortableTableItemProps) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: t.id, disabled: readOnly });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
@@ -36,9 +37,9 @@ function SortableTableItem({ entry: t, onEdit, onDeleteClick }: SortableTableIte
           <span className="text-sm font-medium text-[#24303e]">{t.label}</span>
         </div>
       </div>
-      <div className="flex gap-1 shrink-0 ml-4">
-        <button onClick={() => onEdit(t)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
-        <button onClick={() => onDeleteClick(t.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
+      <div className={`flex gap-1 shrink-0 ml-4 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+        <button onClick={() => onEdit(t)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
+        <button onClick={() => onDeleteClick(t.id)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
       </div>
     </div>
   );
@@ -49,6 +50,7 @@ export function TableList() {
   const roles = useStore((s) => s.roles);
   const deleteTable = useStore((s) => s.deleteTable);
   const reorderTables = useStore((s) => s.reorderTables);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TableEntry | null>(null);
@@ -94,7 +96,10 @@ export function TableList() {
         <p className="text-sm text-[#767676]">{tables.length} Tabelle{tables.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-2 px-3 py-1.5 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Tabelle hinzufügen
         </button>
@@ -116,7 +121,7 @@ export function TableList() {
                   <h3 className="text-xs font-semibold text-[#767676] uppercase tracking-wide mb-2">{mod}</h3>
                   <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
                     {items.map((t) => (
-                      <SortableTableItem key={t.id} entry={t} onEdit={handleEdit} onDeleteClick={handleDeleteClick} />
+                      <SortableTableItem key={t.id} entry={t} onEdit={handleEdit} onDeleteClick={handleDeleteClick} readOnly={readOnly} />
                     ))}
                   </div>
                 </div>

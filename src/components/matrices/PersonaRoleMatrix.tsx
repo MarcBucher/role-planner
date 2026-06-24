@@ -16,6 +16,7 @@ export function PersonaRoleMatrix() {
   const groups = useStore((s) => s.groups);
   const roles = useStore((s) => s.roles);
   const togglePersonaRole = useStore((s) => s.togglePersonaRole);
+  const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
   if (personas.length === 0 || roles.length === 0) {
@@ -109,8 +110,8 @@ export function PersonaRoleMatrix() {
                           onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, r.name)}
                         >
                           <button
-                            onClick={() => !isViaGroup && togglePersonaRole(p.id, r.id)}
-                            disabled={isViaGroup}
+                            onClick={() => !isViaGroup && !readOnly && togglePersonaRole(p.id, r.id)}
+                            disabled={isViaGroup || readOnly}
                             className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
                               isDirect
                                 ? 'bg-[#38b5aa]/10 hover:bg-[#38b5aa]/20 text-[#38b5aa]'

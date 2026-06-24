@@ -9,6 +9,7 @@ export function RoleCapabilityMatrix() {
   const roles = useStore((s) => s.roles);
   const capabilities = useStore((s) => s.capabilities);
   const toggleRoleCapability = useStore((s) => s.toggleRoleCapability);
+  const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
   if (roles.length === 0 || capabilities.length === 0) {
@@ -83,8 +84,8 @@ export function RoleCapabilityMatrix() {
                         onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, c.name)}
                       >
                         <button
-                          onClick={() => !isInherited && toggleRoleCapability(r.id, c.id)}
-                          disabled={isInherited}
+                          onClick={() => !isInherited && !readOnly && toggleRoleCapability(r.id, c.id)}
+                          disabled={isInherited || readOnly}
                           className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
                             isDirect
                               ? 'bg-[#38b5aa]/10 hover:bg-[#38b5aa]/20 text-[#38b5aa]'

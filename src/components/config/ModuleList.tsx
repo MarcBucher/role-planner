@@ -19,13 +19,14 @@ interface SortableModuleItemProps {
   onCancelEdit: () => void;
   onStartEdit: () => void;
   onDeleteClick: () => void;
+  readOnly: boolean;
 }
 
 function SortableModuleItem({
   name, tableCount, isEditing, editValue, onEditValueChange,
-  onEditKeyDown, onCommitEdit, onCancelEdit, onStartEdit, onDeleteClick,
+  onEditKeyDown, onCommitEdit, onCancelEdit, onStartEdit, onDeleteClick, readOnly,
 }: SortableModuleItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: name });
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: name, disabled: readOnly });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -64,9 +65,9 @@ function SortableModuleItem({
               <span className="ml-2 text-xs text-[#767676]">{tableCount} Tabelle{tableCount !== 1 ? 'n' : ''}</span>
             </div>
           </div>
-          <div className="flex gap-1 shrink-0 ml-4">
-            <button onClick={onStartEdit} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
-            <button onClick={onDeleteClick} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
+          <div className={`flex gap-1 shrink-0 ml-4 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+            <button onClick={onStartEdit} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors"><Pencil size={14} /></button>
+            <button onClick={onDeleteClick} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={14} /></button>
           </div>
         </>
       )}
@@ -81,6 +82,7 @@ export function ModuleList() {
   const renameModule = useStore((s) => s.renameModule);
   const deleteModule = useStore((s) => s.deleteModule);
   const reorderModules = useStore((s) => s.reorderModules);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [newName, setNewName] = useState('');
   const [editingName, setEditingName] = useState<string | null>(null);
@@ -151,6 +153,7 @@ export function ModuleList() {
                   onCancelEdit={cancelEdit}
                   onStartEdit={() => startEdit(m)}
                   onDeleteClick={() => handleDeleteClick(m)}
+                  readOnly={readOnly}
                 />
               ))}
             </div>
@@ -163,12 +166,16 @@ export function ModuleList() {
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          disabled={readOnly}
           placeholder="Neues Modul, z.B. ITSM"
-          className="flex-1 px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa]"
+          className={`flex-1 px-3 py-2 text-sm border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#38b5aa] ${readOnly ? 'bg-[#f0f0f0] cursor-not-allowed opacity-60' : ''}`}
         />
         <button
           type="submit"
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-1.5 px-3 py-2 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Hinzufügen
         </button>

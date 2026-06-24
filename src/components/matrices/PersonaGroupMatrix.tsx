@@ -14,6 +14,7 @@ export function PersonaGroupMatrix() {
   const personas = useStore((s) => s.personas);
   const groups = useStore((s) => s.groups);
   const togglePersonaGroup = useStore((s) => s.togglePersonaGroup);
+  const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
   if (personas.length === 0 || groups.length === 0) {
@@ -89,11 +90,12 @@ export function PersonaGroupMatrix() {
                         onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, g.name)}
                       >
                         <button
-                          onClick={() => togglePersonaGroup(p.id, g.id)}
-                          className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${
-                            checked ? 'bg-[#38b5aa]/10 hover:bg-[#38b5aa]/20 text-[#38b5aa]' : 'hover:bg-[#f0f0f0] text-transparent'
+                          onClick={() => !readOnly && togglePersonaGroup(p.id, g.id)}
+                          disabled={readOnly}
+                          className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${readOnly ? 'cursor-default' : ''} ${
+                            checked ? `bg-[#38b5aa]/10 ${readOnly ? '' : 'hover:bg-[#38b5aa]/20'} text-[#38b5aa]` : `${readOnly ? '' : 'hover:bg-[#f0f0f0]'} text-transparent`
                           }`}
-                          title={checked ? `${p.name} ist Mitglied von ${g.name} – klicken zum Entfernen` : `${p.name} zu Gruppe ${g.name} hinzufügen`}
+                          title={readOnly ? 'Schreibschutz aktiv' : checked ? `${p.name} ist Mitglied von ${g.name} – klicken zum Entfernen` : `${p.name} zu Gruppe ${g.name} hinzufügen`}
                         >
                           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                             <path d="M2 7L6 11L12 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

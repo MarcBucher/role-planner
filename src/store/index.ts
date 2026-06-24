@@ -45,11 +45,13 @@ interface StoreState {
   workspaceName: string;
   inviteCode: string;
   syncStatus: SyncStatus;
+  readOnly: boolean;
 
   // Sync controls
   hydrate: (workspaceId: string) => Promise<void>;
   setSyncStatus: (status: SyncStatus) => void;
   setInviteCode: (code: string) => void;
+  setReadOnly: (value: boolean) => void;
 
   // Persona actions
   addPersona: (data: Omit<Persona, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -141,11 +143,18 @@ export const useStore = create<StoreState>()(
     workspaceName: '',
     inviteCode: '',
     syncStatus: 'idle',
+    readOnly: false,
 
     // ─── Sync controls ──────────────────────────────────────────────────────
 
     setSyncStatus: (status) => set((s) => { s.syncStatus = status; }),
     setInviteCode: (code) => set((s) => { s.inviteCode = code; }),
+
+    setReadOnly: (value) => {
+      set((s) => { s.readOnly = value; });
+      get().setSyncStatus('syncing');
+      scheduleAutoSave(get);
+    },
 
     hydrate: async (workspaceId) => {
       // Tear down any existing realtime channel
@@ -179,6 +188,7 @@ export const useStore = create<StoreState>()(
           s.uiTypes = data.uiTypes ?? DEFAULT_UI_TYPES;
           s.tables = data.tables ?? DEFAULT_TABLES;
           s.modules = data.modules ?? DEFAULT_MODULES;
+          s.readOnly = data.readOnly ?? false;
         });
       }
 
@@ -202,6 +212,7 @@ export const useStore = create<StoreState>()(
               s.uiTypes = incoming.uiTypes ?? DEFAULT_UI_TYPES;
               s.tables = incoming.tables ?? DEFAULT_TABLES;
               s.modules = incoming.modules ?? DEFAULT_MODULES;
+              s.readOnly = incoming.readOnly ?? false;
             });
           }
         )
@@ -211,11 +222,13 @@ export const useStore = create<StoreState>()(
     // ─── Persona ──────────────────────────────────────────────────────────────
 
     addPersona: (data) => {
+      if (get().readOnly) return;
       set((s) => { s.personas.push({ ...data, id: nanoid(), createdAt: now(), updatedAt: now() }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     updatePersona: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const p = s.personas.find((x) => x.id === id);
         if (p) Object.assign(p, patch, { updatedAt: now() });
@@ -224,11 +237,13 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deletePersona: (id) => {
+      if (get().readOnly) return;
       set((s) => { s.personas = s.personas.filter((x) => x.id !== id); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     togglePersonaGroup: (personaId, groupId) => {
+      if (get().readOnly) return;
       set((s) => {
         const p = s.personas.find((x) => x.id === personaId);
         if (!p) return;
@@ -241,6 +256,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     togglePersonaRole: (personaId, roleId) => {
+      if (get().readOnly) return;
       set((s) => {
         const p = s.personas.find((x) => x.id === personaId);
         if (!p) return;
@@ -254,6 +270,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     reorderPersonas: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.personas.splice(from, 1); s.personas.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -261,11 +278,13 @@ export const useStore = create<StoreState>()(
     // ─── Group ────────────────────────────────────────────────────────────────
 
     addGroup: (data) => {
+      if (get().readOnly) return;
       set((s) => { s.groups.push({ ...data, id: nanoid(), createdAt: now(), updatedAt: now() }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     updateGroup: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const g = s.groups.find((x) => x.id === id);
         if (g) Object.assign(g, patch, { updatedAt: now() });
@@ -274,6 +293,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteGroup: (id) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const usages = state.personas.filter((p) => p.groupIds.includes(id)).map((p) => p.name);
       if (usages.length > 0) return { blocked: true, usages };
@@ -283,6 +303,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     toggleGroupRole: (groupId, roleId) => {
+      if (get().readOnly) return;
       set((s) => {
         const g = s.groups.find((x) => x.id === groupId);
         if (!g) return;
@@ -295,6 +316,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     reorderGroups: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.groups.splice(from, 1); s.groups.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -302,6 +324,7 @@ export const useStore = create<StoreState>()(
     // ─── Role ─────────────────────────────────────────────────────────────────
 
     addRole: (data) => {
+      if (get().readOnly) return;
       set((s) => {
         s.roles.push({ ...data, containsRoleIds: data.containsRoleIds ?? [], id: nanoid(), createdAt: now(), updatedAt: now() });
       });
@@ -309,6 +332,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     updateRole: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const r = s.roles.find((x) => x.id === id);
         if (r) Object.assign(r, patch, { updatedAt: now() });
@@ -317,6 +341,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteRole: (id) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const usages = [
         ...state.groups.filter((g) => g.roleIds.includes(id)).map((g) => `Gruppe: ${g.name}`),
@@ -330,6 +355,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     toggleRoleCapability: (roleId, capabilityId) => {
+      if (get().readOnly) return;
       set((s) => {
         const r = s.roles.find((x) => x.id === roleId);
         if (!r) return;
@@ -342,6 +368,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     toggleRoleContainsRole: (roleId, containedRoleId) => {
+      if (get().readOnly) return;
       if (roleId === containedRoleId) return;
       const state = get();
       if (containsTransitively(containedRoleId, roleId, state.roles)) {
@@ -361,6 +388,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     toggleRoleUI: (roleId, uiKey) => {
+      if (get().readOnly) return;
       set((s) => {
         const r = s.roles.find((x) => x.id === roleId);
         if (!r) return;
@@ -373,6 +401,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     setTableCrud: (roleId, table, crud) => {
+      if (get().readOnly) return;
       set((s) => {
         const r = s.roles.find((x) => x.id === roleId);
         if (!r) return;
@@ -386,6 +415,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     reorderRoles: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.roles.splice(from, 1); s.roles.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -393,11 +423,13 @@ export const useStore = create<StoreState>()(
     // ─── Capability ───────────────────────────────────────────────────────────
 
     addCapability: (data) => {
+      if (get().readOnly) return;
       set((s) => { s.capabilities.push({ ...data, id: nanoid(), createdAt: now(), updatedAt: now() }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     updateCapability: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const c = s.capabilities.find((x) => x.id === id);
         if (c) Object.assign(c, patch, { updatedAt: now() });
@@ -406,6 +438,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteCapability: (id) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const usages = state.roles.filter((r) => r.capabilityIds.includes(id)).map((r) => r.name);
       if (usages.length > 0) return { blocked: true, usages };
@@ -415,6 +448,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     reorderCapabilities: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.capabilities.splice(from, 1); s.capabilities.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -422,11 +456,13 @@ export const useStore = create<StoreState>()(
     // ─── UIType ───────────────────────────────────────────────────────────────
 
     addUIType: (data) => {
+      if (get().readOnly) return;
       set((s) => { s.uiTypes.push({ ...data, id: nanoid() }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     updateUIType: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const u = s.uiTypes.find((x) => x.id === id);
         if (!u) return;
@@ -443,6 +479,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteUIType: (id) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const entry = state.uiTypes.find((x) => x.id === id);
       if (!entry) return { blocked: false, usages: [] };
@@ -454,6 +491,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     reorderUITypes: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.uiTypes.splice(from, 1); s.uiTypes.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -461,11 +499,13 @@ export const useStore = create<StoreState>()(
     // ─── Table ────────────────────────────────────────────────────────────────
 
     addTable: (data) => {
+      if (get().readOnly) return;
       set((s) => { s.tables.push({ ...data, id: nanoid() }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     updateTable: (id, patch) => {
+      if (get().readOnly) return;
       set((s) => {
         const t = s.tables.find((x) => x.id === id);
         if (!t) return;
@@ -484,6 +524,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteTable: (id) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const entry = state.tables.find((x) => x.id === id);
       if (!entry) return { blocked: false, usages: [] };
@@ -503,6 +544,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     reorderTables: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.tables.splice(from, 1); s.tables.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -510,6 +552,7 @@ export const useStore = create<StoreState>()(
     // ─── Module ───────────────────────────────────────────────────────────────
 
     addModule: (name) => {
+      if (get().readOnly) return;
       set((s) => {
         const trimmed = name.trim();
         if (trimmed && !s.modules.includes(trimmed)) s.modules.push(trimmed);
@@ -518,6 +561,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     renameModule: (oldName, newName) => {
+      if (get().readOnly) return;
       set((s) => {
         const trimmed = newName.trim();
         if (!trimmed || oldName === trimmed) return;
@@ -529,6 +573,7 @@ export const useStore = create<StoreState>()(
       scheduleAutoSave(get);
     },
     deleteModule: (name) => {
+      if (get().readOnly) return { blocked: false, usages: [] };
       const state = get();
       const usages = state.tables.filter((t) => t.module === name).map((t) => t.label || t.key);
       if (usages.length > 0) return { blocked: true, usages };
@@ -538,6 +583,7 @@ export const useStore = create<StoreState>()(
       return { blocked: false, usages: [] };
     },
     reorderModules: (from, to) => {
+      if (get().readOnly) return;
       set((s) => { const [item] = s.modules.splice(from, 1); s.modules.splice(to, 0, item); });
       scheduleAutoSave(get);
     },
@@ -545,21 +591,25 @@ export const useStore = create<StoreState>()(
     // ─── Bulk-clear ───────────────────────────────────────────────────────────
 
     clearUITypes: () => {
+      if (get().readOnly) return;
       set((s) => { s.uiTypes = []; s.roles.forEach((r) => { r.uiAccess = []; }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     clearTables: () => {
+      if (get().readOnly) return;
       set((s) => { s.tables = []; s.roles.forEach((r) => { r.tableCrud = {}; }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     clearModules: () => {
+      if (get().readOnly) return;
       set((s) => { s.modules = []; s.tables.forEach((t) => { t.module = ''; }); });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
     },
     clearData: () => {
+      if (get().readOnly) return;
       set((s) => { s.personas = []; s.groups = []; s.roles = []; s.capabilities = []; });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
@@ -568,6 +618,7 @@ export const useStore = create<StoreState>()(
     // ─── Backup/Restore ───────────────────────────────────────────────────────
 
     importState: (state) => {
+      if (get().readOnly) return;
       set((s) => {
         s.personas = state.personas;
         s.groups = state.groups ?? [];
@@ -576,6 +627,7 @@ export const useStore = create<StoreState>()(
         s.uiTypes = state.uiTypes ?? DEFAULT_UI_TYPES;
         s.tables = state.tables ?? DEFAULT_TABLES;
         s.modules = state.modules ?? DEFAULT_MODULES;
+        s.readOnly = state.readOnly ?? false;
       });
       get().setSyncStatus('syncing');
       scheduleAutoSave(get);
@@ -588,10 +640,12 @@ export const useStore = create<StoreState>()(
       uiTypes: get().uiTypes,
       tables: get().tables,
       modules: get().modules,
+      readOnly: get().readOnly,
       version: SCHEMA_VERSION,
       exportedAt: now(),
     }),
     resetAll: () => {
+      if (get().readOnly) return;
       set((s) => {
         s.personas = [];
         s.groups = [];

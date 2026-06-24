@@ -89,6 +89,7 @@ export interface AppState {
   uiTypes: UITypeEntry[];
   tables: TableEntry[];
   modules: string[];
+  readOnly?: boolean;
   version: string;
   exportedAt: string;
   _nonce?: string;

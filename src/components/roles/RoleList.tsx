@@ -23,10 +23,11 @@ interface SortableRoleItemProps {
   capCount: number;
   onEdit: (r: Role) => void;
   onDeleteClick: (id: string) => void;
+  readOnly: boolean;
 }
 
-function SortableRoleItem({ role: r, capNames, capCount, onEdit, onDeleteClick }: SortableRoleItemProps) {
-  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: r.id });
+function SortableRoleItem({ role: r, capNames, capCount, onEdit, onDeleteClick, readOnly }: SortableRoleItemProps) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } = useSortable({ id: r.id, disabled: readOnly });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const typeInfo = typeLabels[r.type];
 
@@ -61,11 +62,11 @@ function SortableRoleItem({ role: r, capNames, capCount, onEdit, onDeleteClick }
           </p>
         )}
       </div>
-      <div className="flex gap-1 shrink-0 ml-4 mt-0.5">
-        <button onClick={() => onEdit(r)} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
+      <div className={`flex gap-1 shrink-0 ml-4 mt-0.5 ${readOnly ? 'opacity-40 pointer-events-none' : ''}`}>
+        <button onClick={() => onEdit(r)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-[#38b5aa] hover:bg-[#38b5aa]/10 transition-colors">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteClick(r.id)} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
+        <button onClick={() => onDeleteClick(r.id)} disabled={readOnly} className="p-1.5 text-[#767676] hover:text-red-600 hover:bg-red-50 transition-colors">
           <Trash2 size={14} />
         </button>
       </div>
@@ -79,6 +80,7 @@ export function RoleList() {
   const deleteRole = useStore((s) => s.deleteRole);
   const reorderRoles = useStore((s) => s.reorderRoles);
   const capabilities = useStore((s) => s.capabilities);
+  const readOnly = useStore((s) => s.readOnly);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Role | null>(null);
@@ -112,7 +114,10 @@ export function RoleList() {
         <p className="text-sm text-[#767676]">{roles.length} Rolle{roles.length !== 1 ? 'n' : ''}</p>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#38b5aa] text-[#24303e] text-sm font-semibold hover:bg-[#2ea095] transition-colors"
+          disabled={readOnly}
+          className={`flex items-center gap-2 px-3 py-1.5 text-[#24303e] text-sm font-semibold transition-colors ${
+            readOnly ? 'bg-[#c8c8c8] cursor-not-allowed opacity-50' : 'bg-[#38b5aa] hover:bg-[#2ea095]'
+          }`}
         >
           <Plus size={14} /> Rolle hinzufügen
         </button>
@@ -142,6 +147,7 @@ export function RoleList() {
                     capNames={capNames}
                     onEdit={handleEdit}
                     onDeleteClick={handleDeleteClick}
+                    readOnly={readOnly}
                   />
                 );
               })}
