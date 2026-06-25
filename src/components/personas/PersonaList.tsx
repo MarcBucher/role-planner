@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { PersonaForm } from './PersonaForm';
 import { EmptyState } from '../common/EmptyState';
 import { Badge } from '../common/Badge';
+import { ListToolbar } from '../common/ListToolbar';
 import type { Persona } from '../../types';
 
 function getInitials(name: string): string {
@@ -99,18 +100,32 @@ export function PersonaList() {
   const [editing, setEditing] = useState<Persona | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'intern' | 'extern'>('all');
+  const [search, setSearch] = useState('');
 
   const handleEdit = (p: Persona) => { setEditing(p); setFormOpen(true); };
   const handleCloseForm = () => { setFormOpen(false); setEditing(null); };
 
-  const filtered = personas.filter((p) => {
-    if (filter === 'all') return true;
-    return (p.scope ?? 'intern') === filter;
-  });
-
   const internCount = personas.filter((p) => (p.scope ?? 'intern') === 'intern').length;
   const externCount = personas.filter((p) => p.scope === 'extern').length;
-  const isDndActive = filter === 'all';
+
+  const scopeChips = [
+    { label: `Alle (${personas.length})`, value: 'all' },
+    { label: `Intern (${internCount})`, value: 'intern' },
+    { label: `Extern (${externCount})`, value: 'extern' },
+  ];
+
+  const filtered = personas.filter((p) => {
+    const matchesScope = filter === 'all' || (p.scope ?? 'intern') === filter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      (p.description ?? '').toLowerCase().includes(q) ||
+      (p.exampleUser ?? '').toLowerCase().includes(q);
+    return matchesScope && matchesSearch;
+  });
+
+  const isDndActive = filter === 'all' && !search;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -126,21 +141,14 @@ export function PersonaList() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <p className="text-sm text-[#767676]">{personas.length} Persona{personas.length !== 1 ? 's' : ''}</p>
-          <div className="flex gap-1">
-            {(['all', 'intern', 'extern'] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-2.5 py-1 text-xs transition-colors ${
-                  filter === f
-                    ? f === 'extern' ? 'bg-orange-100 text-orange-700 font-semibold' : f === 'intern' ? 'bg-[#38b5aa]/10 text-[#38b5aa] font-semibold' : 'bg-[#e5e7eb] text-[#24303e] font-semibold'
-                    : 'text-[#767676] hover:bg-[#f0f0f0]'
-                }`}
-              >
-                {f === 'all' ? `Alle (${personas.length})` : f === 'intern' ? `Intern (${internCount})` : `Extern (${externCount})`}
-              </button>
-            ))}
-          </div>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            chips={scopeChips}
+            activeChip={filter}
+            onChipChange={(v) => setFilter(v as 'all' | 'intern' | 'extern')}
+            placeholder="Personas suchen…"
+          />
         </div>
         <button
           onClick={() => setFormOpen(true)}
@@ -160,9 +168,11 @@ export function PersonaList() {
           description="Personas beschreiben typische Benutzerrollen, z.B. 'IT Admin', 'Endnutzer' oder 'Manager'."
           action={{ label: 'Erste Persona anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={filtered.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? personas.map((p) => p.id) : filtered.map((p) => p.id)} strategy={verticalListSortingStrategy}>
             <div className="grid grid-cols-1 gap-3">
               {filtered.map((p) => {
                 const assignedGroups = groups.filter((g) => p.groupIds.includes(g.id));

@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useStore } from '../../store';
 import { EmptyState } from '../common/EmptyState';
 import { Grid3X3 } from 'lucide-react';
 import { useCrosshair, CROSS_HEADER_CLS, CROSS_HEADER_BG, CROSS_TINT_CLS } from '../../hooks/useCrosshair';
 import { CrosshairLabel } from './CrosshairLabel';
+import { MatrixToolbar } from './MatrixToolbar';
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -17,6 +19,10 @@ export function PersonaGroupMatrix() {
   const readOnly = useStore((s) => s.readOnly);
   const cross = useCrosshair();
 
+  const [rowSearch, setRowSearch] = useState('');
+  const [colSearch, setColSearch] = useState('');
+  const [onlyAssigned, setOnlyAssigned] = useState(false);
+
   if (personas.length === 0 || groups.length === 0) {
     return (
       <EmptyState
@@ -27,90 +33,126 @@ export function PersonaGroupMatrix() {
     );
   }
 
+  // Filter by name search
+  let visibleRows = personas.filter((p) =>
+    p.name.toLowerCase().includes(rowSearch.toLowerCase())
+  );
+  let visibleCols = groups.filter((g) =>
+    g.name.toLowerCase().includes(colSearch.toLowerCase())
+  );
+
+  // onlyAssigned filter
+  if (onlyAssigned) {
+    visibleRows = visibleRows.filter((p) =>
+      visibleCols.some((g) => p.groupIds.includes(g.id))
+    );
+    visibleCols = visibleCols.filter((g) =>
+      visibleRows.some((p) => p.groupIds.includes(g.id))
+    );
+  }
+
   return (
-    <div className="overflow-x-auto scrollbar-thin">
-      <div className="inline-block overflow-hidden shadow-sm border border-[#e5e7eb]">
-        <table className="border-collapse text-sm bg-white">
-          <thead>
-            <tr className="bg-[#f0f0f0]">
-              <th className="sticky left-0 z-10 bg-[#f0f0f0] px-4 py-2.5 text-left text-xs font-semibold text-[#56606c] border-b border-r border-slate-200 min-w-[160px]">
-                Persona / Gruppe
-              </th>
-              {groups.map((g, colIdx) => (
-                <th
-                  key={g.id}
-                  className={`border-b border-[#e5e7eb] transition-colors ${colIdx === cross.col ? CROSS_HEADER_CLS : ''}`}
-                  style={{ width: '2.5rem' }}
-                >
-                  <span
-                    className="block text-xs font-medium px-1 py-2"
-                    style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}
-                    title={g.description}
-                  >
-                    {g.name}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody onMouseLeave={cross.clear}>
-            {personas.map((p, rowIdx) => {
-              const isRowHot = rowIdx === cross.row;
-              return (
-                <tr key={p.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#f0f0f0]/50'}>
-                  <td
-                    className="sticky left-0 z-10 px-4 py-2.5 border-r border-slate-200 font-medium text-[#24303e] transition-colors"
-                    style={{ backgroundColor: isRowHot ? CROSS_HEADER_BG : rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-6 h-6 shrink-0 flex items-center justify-center text-[10px] font-bold text-white select-none"
-                        style={{ backgroundColor: p.color }}
+    <div className="space-y-3">
+      <MatrixToolbar
+        rowSearch={rowSearch}
+        colSearch={colSearch}
+        onRowSearch={setRowSearch}
+        onColSearch={setColSearch}
+        onlyAssigned={onlyAssigned}
+        onOnlyAssigned={setOnlyAssigned}
+        rowLabel="Persona"
+        colLabel="Gruppe"
+      />
+      {(visibleRows.length === 0 || visibleCols.length === 0) ? (
+        <p className="text-sm text-[#767676] py-4">Keine Einträge gefunden.</p>
+      ) : (
+        <div className="overflow-x-auto scrollbar-thin">
+          <div className="inline-block overflow-hidden shadow-sm border border-[#e5e7eb]">
+            <table role="grid" className="border-collapse text-sm bg-white">
+              <thead>
+                <tr className="bg-[#f0f0f0]">
+                  <th className="sticky left-0 z-10 bg-[#f0f0f0] px-4 py-2.5 text-left text-xs font-semibold text-[#56606c] border-b border-r border-slate-200 min-w-[160px]">
+                    Persona / Gruppe
+                  </th>
+                  {visibleCols.map((g, colIdx) => (
+                    <th
+                      key={g.id}
+                      className={`border-b border-[#e5e7eb] transition-colors ${colIdx === cross.col ? CROSS_HEADER_CLS : ''}`}
+                      style={{ width: '2.5rem' }}
+                    >
+                      <span
+                        className="block text-xs font-medium px-1 py-2"
+                        style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}
+                        title={g.description}
                       >
-                        {getInitials(p.name)}
-                      </div>
-                      <div>
-                        <span className="text-sm">{p.name}</span>
-                        {p.exampleUser && <span className="block text-[10px] text-[#767676] italic leading-tight">{p.exampleUser}</span>}
-                      </div>
-                      <span className={`text-[10px] font-semibold px-1 rounded ${
-                        (p.scope ?? 'intern') === 'extern' ? 'bg-orange-100 text-orange-600' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
-                      }`}>
-                        {(p.scope ?? 'intern') === 'extern' ? 'E' : 'I'}
+                        {g.name}
                       </span>
-                    </div>
-                  </td>
-                  {groups.map((g, colIdx) => {
-                    const checked = p.groupIds.includes(g.id);
-                    const isHot = isRowHot || colIdx === cross.col;
-                    return (
-                      <td
-                        key={g.id}
-                        className={`text-center border-slate-100 border-b p-0 transition-colors ${isHot && !checked ? CROSS_TINT_CLS : ''}`}
-                        onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, g.name)}
-                      >
-                        <button
-                          onClick={() => !readOnly && togglePersonaGroup(p.id, g.id)}
-                          disabled={readOnly}
-                          className={`w-full h-full flex items-center justify-center py-2.5 transition-colors ${readOnly ? 'cursor-default' : ''} ${
-                            checked ? `bg-[#38b5aa]/10 ${readOnly ? '' : 'hover:bg-[#38b5aa]/20'} text-[#38b5aa]` : `${readOnly ? '' : 'hover:bg-[#f0f0f0]'} text-transparent`
-                          }`}
-                          title={readOnly ? 'Schreibschutz aktiv' : checked ? `${p.name} ist Mitglied von ${g.name} – klicken zum Entfernen` : `${p.name} zu Gruppe ${g.name} hinzufügen`}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M2 7L6 11L12 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      </td>
-                    );
-                  })}
+                    </th>
+                  ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <CrosshairLabel hover={cross.hover} />
+              </thead>
+              <tbody onMouseLeave={cross.clear}>
+                {visibleRows.map((p, rowIdx) => {
+                  const isRowHot = rowIdx === cross.row;
+                  return (
+                    <tr key={p.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#f0f0f0]/50'}>
+                      <td
+                        className="sticky left-0 z-10 px-4 py-2.5 border-r border-slate-200 font-medium text-[#24303e] transition-colors"
+                        style={{ backgroundColor: isRowHot ? CROSS_HEADER_BG : rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 shrink-0 flex items-center justify-center text-[10px] font-bold text-white select-none"
+                            style={{ backgroundColor: p.color }}
+                          >
+                            {getInitials(p.name)}
+                          </div>
+                          <div>
+                            <span className="text-sm">{p.name}</span>
+                            {p.exampleUser && <span className="block text-[10px] text-[#767676] italic leading-tight">{p.exampleUser}</span>}
+                          </div>
+                          <span className={`text-[10px] font-semibold px-1 rounded ${
+                            (p.scope ?? 'intern') === 'extern' ? 'bg-orange-100 text-orange-600' : 'bg-[#38b5aa]/10 text-[#38b5aa]'
+                          }`}>
+                            {(p.scope ?? 'intern') === 'extern' ? 'E' : 'I'}
+                          </span>
+                        </div>
+                      </td>
+                      {visibleCols.map((g, colIdx) => {
+                        const checked = p.groupIds.includes(g.id);
+                        const isHot = isRowHot || colIdx === cross.col;
+                        return (
+                          <td
+                            role="gridcell"
+                            key={g.id}
+                            className={`text-center border-slate-100 border-b p-0 transition-colors ${isHot && !checked ? CROSS_TINT_CLS : ''}`}
+                            onMouseEnter={(e) => cross.onEnter(rowIdx, colIdx, e, g.name)}
+                          >
+                            <button
+                              onClick={() => !readOnly && togglePersonaGroup(p.id, g.id)}
+                              disabled={readOnly}
+                              aria-pressed={checked}
+                              className={`w-full h-full flex items-center justify-center py-2.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#38b5aa] focus-visible:ring-inset ${readOnly ? 'cursor-default' : ''} ${
+                                checked ? `bg-[#38b5aa]/10 ${readOnly ? '' : 'hover:bg-[#38b5aa]/20'} text-[#38b5aa]` : `${readOnly ? '' : 'hover:bg-[#f0f0f0]'} text-transparent`
+                              }`}
+                              title={readOnly ? 'Schreibschutz aktiv' : checked ? `${p.name} ist Mitglied von ${g.name} – klicken zum Entfernen` : `${p.name} zu Gruppe ${g.name} hinzufügen`}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M2 7L6 11L12 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <CrosshairLabel hover={cross.hover} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
+import { ToastProvider, useToast } from './components/common/Toast';
+import { useStore } from './store';
 import { AuthGuard } from './components/auth/AuthGuard';
 import { WorkspaceGuard } from './components/auth/WorkspaceGuard';
 import { LoginPage } from './pages/LoginPage';
@@ -23,10 +26,37 @@ import { ModulePage } from './pages/ModulePage';
 import { RoleContainsRoleMatrixPage } from './pages/RoleContainsRoleMatrixPage';
 import { EinstellungenPage } from './pages/EinstellungenPage';
 
+function UndoRedoHandler() {
+  const undo = useStore((s) => s.undo);
+  const redo = useStore((s) => s.redo);
+  const canUndo = useStore((s) => s.canUndo);
+  const canRedo = useStore((s) => s.canRedo);
+  const toast = useToast();
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key !== 'z') return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return;
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (canRedo()) { redo(); toast.info('Wiederherstellen'); }
+      } else {
+        if (canUndo()) { undo(); toast.info('Rückgängig gemacht'); }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [undo, redo, canUndo, canRedo, toast]);
+
+  return null;
+}
+
 function AppShell() {
   return (
     <div className="flex min-h-screen bg-[#f0f0f0]">
       <Sidebar />
+      <UndoRedoHandler />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
@@ -56,6 +86,7 @@ function AppShell() {
 
 export default function App() {
   return (
+    <ToastProvider>
     <BrowserRouter basename="/role-planner">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -79,5 +110,6 @@ export default function App() {
         />
       </Routes>
     </BrowserRouter>
+    </ToastProvider>
   );
 }

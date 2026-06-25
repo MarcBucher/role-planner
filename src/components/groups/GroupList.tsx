@@ -9,7 +9,9 @@ import { UsageBlockDialog } from '../common/UsageBlockDialog';
 import { GroupForm } from './GroupForm';
 import { EmptyState } from '../common/EmptyState';
 import { Badge } from '../common/Badge';
+import { ListToolbar } from '../common/ListToolbar';
 import type { Group } from '../../types';
+
 
 interface SortableGroupItemProps {
   group: Group;
@@ -76,6 +78,8 @@ export function GroupList() {
   const [editing, setEditing] = useState<Group | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [blockUsages, setBlockUsages] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
+  const [scopeFilter, setScopeFilter] = useState('all');
 
   const handleEdit = (g: Group) => { setEditing(g); setFormOpen(true); };
   const handleCloseForm = () => { setFormOpen(false); setEditing(null); };
@@ -86,6 +90,18 @@ export function GroupList() {
     else setDeleteId(id);
   };
 
+  const filtered = groups.filter((g) => {
+    const matchesScope = scopeFilter === 'all' || (g.scope ?? 'intern') === scopeFilter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      g.name.toLowerCase().includes(q) ||
+      (g.description ?? '').toLowerCase().includes(q);
+    return matchesScope && matchesSearch;
+  });
+
+  const isDndActive = !search && scopeFilter === 'all';
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -95,10 +111,29 @@ export function GroupList() {
     }
   };
 
+  const internCount = groups.filter((g) => (g.scope ?? 'intern') === 'intern').length;
+  const externCount = groups.filter((g) => g.scope === 'extern').length;
+
+  const scopeChips = [
+    { label: `Alle (${groups.length})`, value: 'all' },
+    { label: `Intern (${internCount})`, value: 'intern' },
+    { label: `Extern (${externCount})`, value: 'extern' },
+  ];
+
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-[#767676]">{groups.length} Gruppe{groups.length !== 1 ? 'n' : ''}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#767676]">{groups.length} Gruppe{groups.length !== 1 ? 'n' : ''}</p>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            chips={scopeChips}
+            activeChip={scopeFilter}
+            onChipChange={setScopeFilter}
+            placeholder="Gruppen suchen…"
+          />
+        </div>
         <button
           onClick={() => setFormOpen(true)}
           disabled={readOnly}
@@ -117,11 +152,13 @@ export function GroupList() {
           description="Gruppen bündeln Rollen und werden Personas zugewiesen."
           action={{ label: 'Erste Gruppe anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={groups.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? groups.map((g) => g.id) : filtered.map((g) => g.id)} strategy={verticalListSortingStrategy}>
             <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
-              {groups.map((g) => {
+              {filtered.map((g) => {
                 const roleCount = g.roleIds.length;
                 const roleNames = g.roleIds.slice(0, 3)
                   .map((id) => roles.find((r) => r.id === id)?.name)
@@ -134,7 +171,7 @@ export function GroupList() {
                     roleNames={roleNames}
                     onEdit={handleEdit}
                     onDeleteClick={handleDeleteClick}
-                    readOnly={readOnly}
+                    readOnly={readOnly || !isDndActive}
                   />
                 );
               })}

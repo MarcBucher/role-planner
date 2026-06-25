@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { UsageBlockDialog } from '../common/UsageBlockDialog';
 import { EmptyState } from '../common/EmptyState';
 import { UITypeForm } from './UITypeForm';
+import { ListToolbar } from '../common/ListToolbar';
 import type { UITypeEntry } from '../../types';
 
 interface SortableUIItemProps {
@@ -57,6 +58,7 @@ export function UITypeList() {
   const [editing, setEditing] = useState<UITypeEntry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [blockUsages, setBlockUsages] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
 
   const handleEdit = (u: UITypeEntry) => { setEditing(u); setFormOpen(true); };
   const handleClose = () => { setFormOpen(false); setEditing(null); };
@@ -68,6 +70,18 @@ export function UITypeList() {
     if (usages.length > 0) setBlockUsages(usages);
     else setDeleteId(id);
   };
+
+  const filtered = uiTypes.filter((u) => {
+    const q = search.toLowerCase();
+    return (
+      !q ||
+      u.key.toLowerCase().includes(q) ||
+      u.label.toLowerCase().includes(q) ||
+      (u.description ?? '').toLowerCase().includes(q)
+    );
+  });
+
+  const isDndActive = !search;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -81,7 +95,14 @@ export function UITypeList() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-[#767676]">{uiTypes.length} UI-Typ{uiTypes.length !== 1 ? 'en' : ''}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#767676]">{uiTypes.length} UI-Typ{uiTypes.length !== 1 ? 'en' : ''}</p>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            placeholder="UI-Typen suchen…"
+          />
+        </div>
         <button
           onClick={() => setFormOpen(true)}
           disabled={readOnly}
@@ -100,12 +121,14 @@ export function UITypeList() {
           description="Definiere die ServiceNow-Benutzeroberflächen, auf die Rollen Zugriff haben können."
           action={{ label: 'Ersten UI-Typ anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={uiTypes.map((u) => u.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? uiTypes.map((u) => u.id) : filtered.map((u) => u.id)} strategy={verticalListSortingStrategy}>
             <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
-              {uiTypes.map((u) => (
-                <SortableUIItem key={u.id} entry={u} onEdit={handleEdit} onDeleteClick={handleDeleteClick} readOnly={readOnly} />
+              {filtered.map((u) => (
+                <SortableUIItem key={u.id} entry={u} onEdit={handleEdit} onDeleteClick={handleDeleteClick} readOnly={readOnly || !isDndActive} />
               ))}
             </div>
           </SortableContext>

@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { UsageBlockDialog } from '../common/UsageBlockDialog';
 import { CapabilityForm } from './CapabilityForm';
 import { EmptyState } from '../common/EmptyState';
+import { ListToolbar } from '../common/ListToolbar';
 import type { Capability } from '../../types';
 
 interface SortableCapItemProps {
@@ -58,6 +59,8 @@ export function CapabilityList() {
   const [editing, setEditing] = useState<Capability | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [blockUsages, setBlockUsages] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const handleEdit = (c: Capability) => { setEditing(c); setFormOpen(true); };
   const handleCloseForm = () => { setFormOpen(false); setEditing(null); };
@@ -68,6 +71,27 @@ export function CapabilityList() {
     else setDeleteId(id);
   };
 
+  // Derive unique categories
+  const uniqueCategories = Array.from(new Set(capabilities.map((c) => c.category || 'Allgemein')));
+  const categoryChips = [
+    { label: `Alle (${capabilities.length})`, value: 'all' },
+    ...uniqueCategories.map((cat) => ({ label: cat, value: cat })),
+  ];
+
+  const filtered = capabilities.filter((c) => {
+    const cat = c.category || 'Allgemein';
+    const matchesCategory = categoryFilter === 'all' || cat === categoryFilter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      c.name.toLowerCase().includes(q) ||
+      (c.description ?? '').toLowerCase().includes(q) ||
+      cat.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
+
+  const isDndActive = !search && categoryFilter === 'all';
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -77,7 +101,8 @@ export function CapabilityList() {
     }
   };
 
-  const categoryGroups = capabilities.reduce<Record<string, Capability[]>>((acc, c) => {
+  // Group filtered items by category for display
+  const categoryGroups = filtered.reduce<Record<string, Capability[]>>((acc, c) => {
     const cat = c.category || 'Allgemein';
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(c);
@@ -87,7 +112,17 @@ export function CapabilityList() {
   return (
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-[#767676]">{capabilities.length} Fähigkeit{capabilities.length !== 1 ? 'en' : ''}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#767676]">{capabilities.length} Fähigkeit{capabilities.length !== 1 ? 'en' : ''}</p>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            chips={uniqueCategories.length > 1 ? categoryChips : undefined}
+            activeChip={categoryFilter}
+            onChipChange={setCategoryFilter}
+            placeholder="Fähigkeiten suchen…"
+          />
+        </div>
         <button
           onClick={() => setFormOpen(true)}
           disabled={readOnly}
@@ -106,9 +141,11 @@ export function CapabilityList() {
           description="Fähigkeiten beschreiben, was eine Rolle tun kann, z.B. 'Incidents erstellen' oder 'Reports anzeigen'."
           action={{ label: 'Erste Fähigkeit anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={capabilities.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? capabilities.map((c) => c.id) : filtered.map((c) => c.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-5">
               {Object.entries(categoryGroups).map(([category, items]) => (
                 <div key={category}>
@@ -120,7 +157,7 @@ export function CapabilityList() {
                         cap={c}
                         onEdit={handleEdit}
                         onDeleteClick={handleDeleteClick}
-                        readOnly={readOnly}
+                        readOnly={readOnly || !isDndActive}
                       />
                     ))}
                   </div>

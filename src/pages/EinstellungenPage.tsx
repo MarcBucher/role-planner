@@ -5,12 +5,14 @@ import { PageContainer } from '../components/layout/PageContainer';
 import { exportJSON, importJSON } from '../utils/jsonBackup';
 import { WorkspaceMembers } from '../components/workspace/WorkspaceMembers';
 import { Toggle } from '../components/common/Toggle';
+import { useToast } from '../components/common/Toast';
 
 export function EinstellungenPage() {
   const { exportState, importState, resetAll, clearData, clearUITypes, clearTables, clearModules } = useStore();
   const readOnly = useStore((s) => s.readOnly);
   const setReadOnly = useStore((s) => s.setReadOnly);
   const fileRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   const handleExportJSON = () => {
     const state = exportState();
@@ -23,9 +25,9 @@ export function EinstellungenPage() {
     try {
       const state = await importJSON(file);
       importState(state);
-      alert('Daten erfolgreich importiert.');
+      toast.success('Daten erfolgreich importiert.');
     } catch (err) {
-      alert('Fehler beim Importieren: ' + (err as Error).message);
+      toast.error('Fehler beim Importieren: ' + (err as Error).message);
     }
     e.target.value = '';
   };

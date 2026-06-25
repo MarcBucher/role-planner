@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { UsageBlockDialog } from '../common/UsageBlockDialog';
 import { EmptyState } from '../common/EmptyState';
 import { TableForm } from './TableForm';
+import { ListToolbar } from '../common/ListToolbar';
 import type { TableEntry } from '../../types';
 
 interface SortableTableItemProps {
@@ -56,6 +57,8 @@ export function TableList() {
   const [editing, setEditing] = useState<TableEntry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [blockUsages, setBlockUsages] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
+  const [moduleFilter, setModuleFilter] = useState('all');
 
   const handleEdit = (t: TableEntry) => { setEditing(t); setFormOpen(true); };
   const handleClose = () => { setFormOpen(false); setEditing(null); };
@@ -82,8 +85,28 @@ export function TableList() {
     }
   };
 
-  // Group by module for display
-  const groups = tables.reduce<Record<string, TableEntry[]>>((acc, t) => {
+  // Derive unique modules
+  const uniqueModules = Array.from(new Set(tables.map((t) => t.module || 'Sonstige')));
+  const moduleChips = [
+    { label: `Alle (${tables.length})`, value: 'all' },
+    ...uniqueModules.map((mod) => ({ label: mod, value: mod })),
+  ];
+
+  const filtered = tables.filter((t) => {
+    const mod = t.module || 'Sonstige';
+    const matchesModule = moduleFilter === 'all' || mod === moduleFilter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      t.key.toLowerCase().includes(q) ||
+      t.label.toLowerCase().includes(q);
+    return matchesModule && matchesSearch;
+  });
+
+  const isDndActive = !search && moduleFilter === 'all';
+
+  // Group filtered items by module for display
+  const groups = filtered.reduce<Record<string, TableEntry[]>>((acc, t) => {
     const mod = t.module || 'Sonstige';
     if (!acc[mod]) acc[mod] = [];
     acc[mod].push(t);
@@ -93,7 +116,17 @@ export function TableList() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-[#767676]">{tables.length} Tabelle{tables.length !== 1 ? 'n' : ''}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#767676]">{tables.length} Tabelle{tables.length !== 1 ? 'n' : ''}</p>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            chips={uniqueModules.length > 1 ? moduleChips : undefined}
+            activeChip={moduleFilter}
+            onChipChange={setModuleFilter}
+            placeholder="Tabellen suchen…"
+          />
+        </div>
         <button
           onClick={() => setFormOpen(true)}
           disabled={readOnly}
@@ -112,16 +145,18 @@ export function TableList() {
           description="Definiere die ServiceNow-Tabellen, für die CRUD-Rechte vergeben werden sollen."
           action={{ label: 'Erste Tabelle anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={tables.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? tables.map((t) => t.id) : filtered.map((t) => t.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-4">
               {Object.entries(groups).map(([mod, items]) => (
                 <div key={mod}>
                   <h3 className="text-xs font-semibold text-[#767676] uppercase tracking-wide mb-2">{mod}</h3>
                   <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
                     {items.map((t) => (
-                      <SortableTableItem key={t.id} entry={t} onEdit={handleEdit} onDeleteClick={handleDeleteClick} readOnly={readOnly} />
+                      <SortableTableItem key={t.id} entry={t} onEdit={handleEdit} onDeleteClick={handleDeleteClick} readOnly={readOnly || !isDndActive} />
                     ))}
                   </div>
                 </div>

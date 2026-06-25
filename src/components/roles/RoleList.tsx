@@ -9,6 +9,7 @@ import { UsageBlockDialog } from '../common/UsageBlockDialog';
 import { RoleForm } from './RoleForm';
 import { EmptyState } from '../common/EmptyState';
 import { Badge } from '../common/Badge';
+import { ListToolbar } from '../common/ListToolbar';
 import type { Role, RoleType } from '../../types';
 
 const typeLabels: Record<RoleType, { label: string; color: string }> = {
@@ -86,6 +87,8 @@ export function RoleList() {
   const [editing, setEditing] = useState<Role | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [blockUsages, setBlockUsages] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
+  const [scopeFilter, setScopeFilter] = useState('all');
 
   const handleEdit = (r: Role) => { setEditing(r); setFormOpen(true); };
   const handleCloseForm = () => { setFormOpen(false); setEditing(null); };
@@ -99,6 +102,19 @@ export function RoleList() {
     else setDeleteId(id);
   };
 
+  const filtered = roles.filter((r) => {
+    const matchesScope = scopeFilter === 'all' || (r.scope ?? 'intern') === scopeFilter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      r.name.toLowerCase().includes(q) ||
+      (r.label ?? '').toLowerCase().includes(q) ||
+      (r.description ?? '').toLowerCase().includes(q);
+    return matchesScope && matchesSearch;
+  });
+
+  const isDndActive = !search && scopeFilter === 'all';
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -108,10 +124,29 @@ export function RoleList() {
     }
   };
 
+  const internCount = roles.filter((r) => (r.scope ?? 'intern') === 'intern').length;
+  const externCount = roles.filter((r) => r.scope === 'extern').length;
+
+  const scopeChips = [
+    { label: `Alle (${roles.length})`, value: 'all' },
+    { label: `Intern (${internCount})`, value: 'intern' },
+    { label: `Extern (${externCount})`, value: 'extern' },
+  ];
+
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-[#767676]">{roles.length} Rolle{roles.length !== 1 ? 'n' : ''}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#767676]">{roles.length} Rolle{roles.length !== 1 ? 'n' : ''}</p>
+          <ListToolbar
+            search={search}
+            onSearch={setSearch}
+            chips={scopeChips}
+            activeChip={scopeFilter}
+            onChipChange={setScopeFilter}
+            placeholder="Rollen suchen…"
+          />
+        </div>
         <button
           onClick={() => setFormOpen(true)}
           disabled={readOnly}
@@ -130,11 +165,13 @@ export function RoleList() {
           description="Lege ServiceNow-Rollen an, z.B. 'itil', 'admin' oder eigene Rollen."
           action={{ label: 'Erste Rolle anlegen', onClick: () => setFormOpen(true) }}
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-[#767676] py-6 text-center">Keine Ergebnisse</p>
       ) : (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={roles.map((r) => r.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={isDndActive ? roles.map((r) => r.id) : filtered.map((r) => r.id)} strategy={verticalListSortingStrategy}>
             <div className="bg-white border border-[#e5e7eb] divide-y divide-[#f0f0f0]">
-              {roles.map((r) => {
+              {filtered.map((r) => {
                 const capCount = r.capabilityIds.length;
                 const capNames = r.capabilityIds.slice(0, 3)
                   .map((id) => capabilities.find((c) => c.id === id)?.name)
@@ -147,7 +184,7 @@ export function RoleList() {
                     capNames={capNames}
                     onEdit={handleEdit}
                     onDeleteClick={handleDeleteClick}
-                    readOnly={readOnly}
+                    readOnly={readOnly || !isDndActive}
                   />
                 );
               })}
